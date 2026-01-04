@@ -93,10 +93,20 @@
         color: white;
         font-family: 'Playfair Display', serif;
         transition: opacity 0.5s ease;
-        background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 100 100"><path fill="%230a1e2e" d="M50,10 L60,40 L90,40 L65,60 L75,90 L50,70 L25,90 L35,60 L10,40 L40,40 Z"/></svg>');
+        background-image: url('https://images.unsplash.com/photo-1546182998-d1c5c718d970?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80');
         background-repeat: no-repeat;
         background-position: center;
-        background-size: 100px;
+        background-size: cover;
+    }
+
+    .loader-overlay {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(10, 30, 46, 0.8);
+        z-index: -1;
     }
 
     .loader-title {
@@ -185,11 +195,14 @@
         flex-direction: column;
     }
     
-    .owl-icon {
-        font-size: 3em;
-        color: #2c5a78;
-        margin-bottom: 10px;
-        text-shadow: 0 0 15px rgba(135, 206, 250, 0.5);
+    .owl-logo {
+        width: 120px;
+        height: 120px;
+        background-image: url('https://cdn-icons-png.flaticon.com/512/1998/1998610.png');
+        background-size: contain;
+        background-repeat: no-repeat;
+        background-position: center;
+        margin-bottom: 15px;
         animation: float-owl 4s ease-in-out infinite;
     }
     
@@ -331,24 +344,52 @@
         margin: auto; 
     }
     
+    .section-title {
+        font-family: 'Playfair Display', serif;
+        color: #1a3a5f;
+        font-size: 2.2em;
+        margin-bottom: 40px;
+        position: relative;
+        display: inline-block;
+    }
+    
+    .section-title:after {
+        content: '';
+        position: absolute;
+        bottom: -10px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 100px;
+        height: 3px;
+        background: linear-gradient(90deg, #87ceeb, #4a6fa5);
+        border-radius: 3px;
+    }
+    
+    .features-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 25px;
+        margin-bottom: 40px;
+    }
+    
     .feature {
         padding: 25px; 
-        margin-bottom: 25px; 
         text-align: left; 
         cursor: pointer;
         border-radius: 15px;
         transition: all 0.3s;
         display: flex;
         flex-direction: column;
-        align-items: flex-start;
         animation: fade-in 1s ease-out forwards;
         opacity: 0;
         border-left: 5px solid #87ceeb;
+        height: 100%;
     }
     
     .feature:nth-of-type(1) { animation-delay: 0.2s; }
     .feature:nth-of-type(2) { animation-delay: 0.4s; }
     .feature:nth-of-type(3) { animation-delay: 0.6s; }
+    .feature:nth-of-type(4) { animation-delay: 0.8s; }
     
     .feature:hover {
         transform: translateY(-8px);
@@ -356,31 +397,152 @@
         border-left: 5px solid #4a6fa5;
     }
     
+    .feature-icon {
+        font-size: 2.5em;
+        color: #2c5a78;
+        margin-bottom: 15px;
+        display: inline-block;
+        transition: all 0.3s;
+    }
+    
+    .feature:hover .feature-icon {
+        transform: scale(1.2);
+        color: #4a6fa5;
+    }
+    
     .feature h3 { 
         font-size: 1.5em; 
         margin-bottom: 10px; 
-        display: flex; 
-        align-items: center; 
-        gap: 10px; 
-        font-family: 'Montserrat', sans-serif; 
         color: #1a3a5f;
+        font-family: 'Montserrat', sans-serif;
     }
     
     .feature p { 
         font-size: 1.05em; 
         color: #4a6fa5; 
         line-height: 1.6;
+        flex-grow: 1;
+    }
+
+    /* Imagens ilustrativas */
+    .owl-image-container {
+        margin: 40px auto;
+        max-width: 900px;
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 20px;
     }
     
-    .feature i { 
-        color: #2c5a78; 
-        font-size: 1.3em;
+    .owl-image {
+        width: 280px;
+        height: 180px;
+        border-radius: 15px;
+        overflow: hidden;
+        box-shadow: 0 10px 25px rgba(0,0,0,0.1);
         transition: all 0.3s;
     }
     
-    .feature:hover i {
-        transform: scale(1.2);
+    .owl-image:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 15px 30px rgba(0,0,0,0.15);
+    }
+    
+    .owl-image img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        transition: transform 0.5s;
+    }
+    
+    .owl-image:hover img {
+        transform: scale(1.05);
+    }
+    
+    .owl-image-caption {
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        background: rgba(26, 58, 95, 0.8);
+        color: white;
+        padding: 10px;
+        font-size: 0.9em;
+        transform: translateY(100%);
+        transition: transform 0.3s;
+    }
+    
+    .owl-image:hover .owl-image-caption {
+        transform: translateY(0);
+    }
+
+    /* Like & Views Container - CORRIGIDO */
+    .like-views-container {
+        margin: 30px auto;
+        max-width: 500px;
+        animation: fade-in 1s ease-out forwards;
+        opacity: 0;
+        animation-delay: 0.1s;
+    }
+    
+    .like-views {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 20px;
+        flex-wrap: wrap;
+    }
+    
+    .like-box, .views-box {
+        flex: 1;
+        min-width: 200px;
+        padding: 20px;
+        border-radius: 15px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        color: #1a3a5f;
+        font-family: 'Montserrat', sans-serif;
+        border: 1px solid rgba(173, 216, 230, 0.5);
+        background: rgba(255, 255, 255, 0.9);
+        box-shadow: 0 4px 15px rgba(135, 206, 250, 0.2);
+        transition: all 0.3s;
+    }
+    
+    .like-box:hover, .views-box:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 8px 20px rgba(135, 206, 250, 0.3);
+    }
+    
+    .like-box {
+        cursor: pointer;
+    }
+    
+    .like-icon, .views-icon {
+        font-size: 2.5em;
+        margin-bottom: 10px;
+    }
+    
+    .like-icon {
+        color: #e63946;
+    }
+    
+    .views-icon {
+        color: #2c5a78;
+    }
+    
+    .like-count, .views-count {
+        font-size: 2em;
+        font-weight: 700;
+        margin-bottom: 5px;
+        font-family: 'Montserrat', sans-serif;
+    }
+    
+    .like-label, .views-label {
+        font-size: 1em;
         color: #4a6fa5;
+        font-weight: 600;
     }
 
     /* Patrocinadores */
@@ -413,19 +575,16 @@
         box-shadow: 0 10px 25px rgba(135, 206, 250, 0.3);
     }
     
-    .sponsor-card img, .sponsor-card i { 
-        max-width: 80px; 
+    .sponsor-card img { 
+        max-width: 100px; 
         margin-bottom: 15px; 
         transition: all 0.3s; 
+        height: 60px;
+        object-fit: contain;
     }
     
-    .sponsor-card:hover img, .sponsor-card:hover i { 
+    .sponsor-card:hover img { 
         transform: scale(1.1); 
-    }
-    
-    .sponsor-card i { 
-        color: #2c5a78; 
-        font-size: 50px; 
     }
     
     .sponsor-card a { 
@@ -463,58 +622,6 @@
     #whatsapp-float:hover { 
         transform: scale(1.1) rotate(5deg); 
         box-shadow: 0 6px 20px rgba(37, 211, 102, 0.6); 
-    }
-
-    /* Like & Views Container */
-    .like-views {
-        margin: 20px auto;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        gap: 30px;
-        animation: fade-in 1s ease-out forwards;
-        opacity: 0;
-        animation-delay: 0.1s;
-    }
-    
-    .like-views button, .like-views div {
-        color: #1a3a5f; 
-        padding: 12px 20px; 
-        border-radius: 15px;
-        display: flex; 
-        align-items: center; 
-        gap: 10px; 
-        font-size: 1.1em;
-        font-family: 'Montserrat', sans-serif;
-        font-weight: 600;
-        border: 1px solid rgba(173, 216, 230, 0.5);
-        background: rgba(255, 255, 255, 0.9);
-        box-shadow: 0 4px 10px rgba(135, 206, 250, 0.2);
-    }
-    
-    .like-views button { 
-        border: none; 
-        cursor: pointer; 
-        transition: all 0.3s; 
-    }
-    
-    .like-views button:hover { 
-        background: #f0f8ff; 
-        transform: translateY(-3px); 
-        box-shadow: 0 6px 15px rgba(135, 206, 250, 0.3);
-    }
-    
-    .like-views div:hover { 
-        transform: translateY(-3px); 
-        box-shadow: 0 6px 15px rgba(135, 206, 250, 0.3);
-    }
-    
-    .like-views i { 
-        color: #2c5a78; 
-    }
-    
-    .like-views button i {
-        color: #e63946;
     }
 
     /* Modal */
@@ -613,14 +720,12 @@
             min-width: 220px;
         }
         
-        .feature {
-            flex-direction: row;
-            align-items: flex-start;
+        .like-views {
+            flex-wrap: nowrap;
         }
         
-        .feature i {
-            margin-right: 15px;
-            margin-top: 5px;
+        .like-box, .views-box {
+            min-width: 0;
         }
     }
     
@@ -629,6 +734,8 @@
         .feature { padding: 20px; }
         .sponsors { gap: 20px; }
         .sponsor-card { width: 140px; padding: 15px; }
+        .owl-image { width: 100%; max-width: 300px; }
+        .like-box, .views-box { min-width: 100%; }
     }
 </style>
 </head>
@@ -637,27 +744,21 @@
 <div class="snowfall" id="snowfall"></div>
 
 <div id="loader">
+    <div class="loader-overlay"></div>
     <div class="loader-title">SNOW OWL AGENCY</div>
     <div class="loader-container">
         <div class="loader-bar"></div>
         <div class="loader-glow"></div>
     </div>
-    <div class="loader-subtitle">PREPARANDO SUA JORNADA...</div>
+    <div class="loader-subtitle">VOANDO PARA O SUCESSO...</div>
 </div>
 
 <header>
     <div class="logo-container">
-        <div class="owl-icon">
-            <i class="fas fa-feather-alt"></i>
-        </div>
+        <div class="owl-logo"></div>
         <h1>Snow Owl Agency</h1>
         <p class="subtitle">Voando alto com talentos extraordinários!</p>
         <p class="agency-info">Somos uma agência especializada em desenvolver e impulsionar carreiras de hosts na Bigo Live, com foco em estratégias personalizadas, contratos seguros e crescimento sustentável.</p>
-    </div>
-
-    <div class="like-views">
-        <button id="likeBtn" class="glass"><i class="fas fa-heart"></i> <span id="likeCount">0</span> Curtidas</button>
-        <div class="glass"><i class="fas fa-eye"></i> <span id="viewCount">0</span> Visualizações</div>
     </div>
 
     <i class="fas fa-bars hamburger" onclick="toggleMenu()"></i>
@@ -666,6 +767,26 @@
         <a href="javascript:void(0)" onclick="openModal('contratos')"><i class="fas fa-file-signature"></i> Contratos Protegidos</a>
         <a href="javascript:void(0)" onclick="openModal('pagamentos')"><i class="fas fa-shield-alt"></i> Segurança e Pagamentos</a>
         <a href="javascript:void(0)" onclick="openModal('mentoria')"><i class="fas fa-graduation-cap"></i> Mentoria Especializada</a>
+    </div>
+
+    <div class="like-views-container">
+        <div class="like-views">
+            <div class="like-box glass" id="likeBtn">
+                <div class="like-icon">
+                    <i class="fas fa-heart"></i>
+                </div>
+                <div class="like-count" id="likeCount">0</div>
+                <div class="like-label">Curtidas</div>
+            </div>
+            
+            <div class="views-box glass">
+                <div class="views-icon">
+                    <i class="fas fa-eye"></i>
+                </div>
+                <div class="views-count" id="viewCount">0</div>
+                <div class="views-label">Visualizações</div>
+            </div>
+        </div>
     </div>
 
     <div style="margin: 30px auto; max-width: 500px; border-radius: 10px; overflow: hidden; box-shadow: 0 10px 25px rgba(0,0,0,0.1);">
@@ -679,30 +800,37 @@
 </header>
 
 <section>
-    <div class="feature glass" id="crescimento" onclick="openModal('crescimento')">
-        <i class="fa-solid fa-chart-line"></i>
-        <div>
+    <h2 class="section-title">Nossos Serviços</h2>
+    
+    <div class="features-grid">
+        <div class="feature glass" id="crescimento" onclick="openModal('crescimento')">
+            <div class="feature-icon">
+                <i class="fa-solid fa-chart-line"></i>
+            </div>
             <h3>Crescimento Estratégico</h3>
             <p>Desenvolvemos planos personalizados para expandir sua audiência e aumentar seus ganhos na Bigo Live de forma consistente e sustentável.</p>
         </div>
-    </div>
-    <div class="feature glass" id="contratos" onclick="openModal('contratos')">
-        <i class="fa-solid fa-file-signature"></i>
-        <div>
+        
+        <div class="feature glass" id="contratos" onclick="openModal('contratos')">
+            <div class="feature-icon">
+                <i class="fa-solid fa-file-signature"></i>
+            </div>
             <h3>Contratos Protegidos</h3>
             <p>Oferecemos contratos claros e seguros, com respaldo legal e suporte contínuo para sua tranquilidade e proteção.</p>
         </div>
-    </div>
-    <div class="feature glass" id="pagamentos" onclick="openModal('pagamentos')">
-        <i class="fa-solid fa-shield-alt"></i>
-        <div>
+        
+        <div class="feature glass" id="pagamentos" onclick="openModal('pagamentos')">
+            <div class="feature-icon">
+                <i class="fa-solid fa-shield-alt"></i>
+            </div>
             <h3>Segurança e Pagamentos</h3>
             <p>Garantimos pagamentos pontuais e transparentes, com toda a segurança necessária para você focar no seu conteúdo.</p>
         </div>
-    </div>
-    <div class="feature glass" id="mentoria" onclick="openModal('mentoria')">
-        <i class="fa-solid fa-graduation-cap"></i>
-        <div>
+        
+        <div class="feature glass" id="mentoria" onclick="openModal('mentoria')">
+            <div class="feature-icon">
+                <i class="fa-solid fa-graduation-cap"></i>
+            </div>
             <h3>Mentoria Especializada</h3>
             <p>Acompanhamento individual com especialistas para desenvolver suas habilidades e maximizar seu potencial como host.</p>
         </div>
@@ -710,21 +838,42 @@
 </section>
 
 <section>
-    <h2 style="margin-bottom: 30px; font-family: 'Playfair Display', serif; color: #1a3a5f;">Parceiros e Apoiadores</h2>
+    <h2 class="section-title">Nossa Inspiração</h2>
+    
+    <div class="owl-image-container">
+        <div class="owl-image">
+            <img src="https://images.unsplash.com/photo-1578662996442-48f60103fc96?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80" alt="Coruja da Neve">
+            <div class="owl-image-caption">A visão aguçada da coruja da neve inspira nossa estratégia</div>
+        </div>
+        
+        <div class="owl-image">
+            <img src="https://images.unsplash.com/photo-1518837695005-2083093ee35b?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80" alt="Coruja em voo">
+            <div class="owl-image-caption">Voo silencioso e preciso para alcançar objetivos</div>
+        </div>
+        
+        <div class="owl-image">
+            <img src="https://images.unsplash.com/photo-1459682687441-7761439a709d?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80" alt="Habitat Ártico">
+            <div class="owl-image-caption">Adaptabilidade ao ambiente, assim como nossa agência</div>
+        </div>
+    </div>
+</section>
+
+<section>
+    <h2 class="section-title">Parceiros e Apoiadores</h2>
     <div class="sponsors">
         <div class="sponsor-card glass">
-            <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQV1YDc2Px968li3sXR1KKv0l6gln9EtBywZXo8L03X_xRG9w03LEdbNU7y&s=10" alt="Bigo Live">
+            <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/8/8b/Bigo_Live_logo.svg/2560px-Bigo_Live_logo.svg.png" alt="Bigo Live">
             <a href="https://www.bigo.tv" target="_blank">Bigo Live</a>
         </div>
 
         <div class="sponsor-card glass">
-            <i class="fas fa-snowflake" style="font-size:50px; margin-bottom:10px;"></i>
+            <img src="https://cdn-icons-png.flaticon.com/512/1998/1998610.png" alt="Snow Owl">
             <a href="https://www.snowowlagency.com" target="_blank">Snow Owl Agency</a>
         </div>
 
         <div class="sponsor-card glass">
-            <i class="fas fa-globe" style="font-size:50px; margin-bottom:10px;"></i>
-            <a href="https://www.digitalpartners.com" target="_blank">Digital Partners</a>
+            <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/9/94/Cloudflare_Logo.png/800px-Cloudflare_Logo.png" alt="Cloudflare">
+            <a href="https://www.cloudflare.com" target="_blank">Cloudflare</a>
         </div>
     </div>
 </section>
@@ -793,25 +942,57 @@ window.addEventListener("load", function(){
     }, 5000);
 });
 
-// Like button logic
+// Like button logic - CORRIGIDO
 let likeCount = localStorage.getItem('likeCount') || 0;
 document.getElementById('likeCount').innerText = likeCount;
+
 document.getElementById('likeBtn').addEventListener('click', () => {
     likeCount++;
     localStorage.setItem('likeCount', likeCount);
-    document.getElementById('likeCount').innerText = likeCount >= 1000 ? (likeCount/1000).toFixed(1)+'k' : likeCount;
+    
+    // Formatar número para exibição (1k, 2.5k, etc.)
+    let displayCount;
+    if (likeCount >= 1000000) {
+        displayCount = (likeCount/1000000).toFixed(1) + 'M';
+    } else if (likeCount >= 1000) {
+        displayCount = (likeCount/1000).toFixed(1) + 'k';
+    } else {
+        displayCount = likeCount;
+    }
+    
+    document.getElementById('likeCount').innerText = displayCount;
     
     // Efeito visual ao curtir
     const btn = document.getElementById('likeBtn');
-    btn.style.transform = 'scale(1.1)';
+    btn.style.transform = 'scale(1.05)';
     setTimeout(() => { btn.style.transform = 'scale(1)'; }, 300);
+    
+    // Animação do coração
+    const heart = btn.querySelector('.like-icon i');
+    heart.style.transform = 'scale(1.3)';
+    heart.style.color = '#ff6b6b';
+    setTimeout(() => { 
+        heart.style.transform = 'scale(1)';
+        heart.style.color = '#e63946';
+    }, 300);
 });
 
-// View counter logic
+// View counter logic - CORRIGIDO
 let viewCount = localStorage.getItem('viewCount') || 0;
 viewCount++;
 localStorage.setItem('viewCount', viewCount);
-document.getElementById('viewCount').innerText = viewCount >= 1000 ? (viewCount/1000).toFixed(1)+'k' : viewCount;
+
+// Formatar número para exibição
+let displayViewCount;
+if (viewCount >= 1000000) {
+    displayViewCount = (viewCount/1000000).toFixed(1) + 'M';
+} else if (viewCount >= 1000) {
+    displayViewCount = (viewCount/1000).toFixed(1) + 'k';
+} else {
+    displayViewCount = viewCount;
+}
+
+document.getElementById('viewCount').innerText = displayViewCount;
 
 // Modal functionality
 function openModal(feature) {
@@ -821,16 +1002,16 @@ function openModal(feature) {
 
     if(feature === 'crescimento') {
         title.innerText = 'Crescimento Estratégico';
-        text.innerText = 'Na Snow Owl Agency, desenvolvemos estratégias personalizadas para cada host. Analisamos seu perfil, identificamos oportunidades e criamos um plano de crescimento específico. Nossas técnicas incluem otimização de horários, engajamento de audiência, colaborações estratégicas e muito mais para garantir que seu crescimento seja consistente e sustentável.';
+        text.innerText = 'Na Snow Owl Agency, desenvolvemos estratégias personalizadas para cada host. Analisamos seu perfil, identificamos oportunidades e criamos um plano de crescimento específico. Nossas técnicas incluem otimização de horários, engajamento de audiência, colaborações estratégicas e muito mais para garantir que seu crescimento seja consistente e sustentável.\n\nComo a coruja da neve que enxerga oportunidades à distância, nós identificamos o caminho mais eficiente para seu sucesso.';
     } else if(feature === 'contratos') {
         title.innerText = 'Contratos Protegidos';
-        text.innerText = 'Nossos contratos são desenvolvidos com transparência e segurança jurídica. Cada cláusula é explicada detalhadamente, garantindo que você compreenda todos os seus direitos e obrigações. Trabalhamos com intermedição oficial com a Bigo Live, oferecendo respaldo legal completo e suporte contínuo para qualquer questão que possa surgir durante sua carreira.';
+        text.innerText = 'Nossos contratos são desenvolvidos com transparência e segurança jurídica. Cada cláusula é explicada detalhadamente, garantindo que você compreenda todos os seus direitos e obrigações. Trabalhamos com intermedição oficial com a Bigo Live, oferecendo respaldo legal completo e suporte contínuo para qualquer questão que possa surgir durante sua carreira.\n\nAssim como a coruja da neve que constrói seu ninjo em locais seguros, nós protegemos sua carreira com contratos sólidos.';
     } else if(feature === 'pagamentos') {
         title.innerText = 'Segurança e Pagamentos';
-        text.innerText = 'Garantimos que todos os pagamentos sejam processados de forma segura, transparente e pontual. Utilizamos sistemas de pagamento confiáveis e fornecemos extratos detalhados de todos os seus ganhos. Nossa equipe financeira está sempre disponível para esclarecer dúvidas e garantir que você receba o valor correto na data combinada.';
+        text.innerText = 'Garantimos que todos os pagamentos sejam processados de forma segura, transparente e pontual. Utilizamos sistemas de pagamento confiáveis e fornecemos extratos detalhados de todos os seus ganhos. Nossa equipe financeira está sempre disponível para esclarecer dúvidas e garantir que você receba o valor correto na data combinada.\n\nPrecisão é nossa marca, assim como a coruja da neve em seu voo silencioso e certeiro.';
     } else if(feature === 'mentoria') {
         title.innerText = 'Mentoria Especializada';
-        text.innerText = 'Oferecemos mentoria individual com especialistas em performance digital. Nossos mentores trabalham com você para desenvolver suas habilidades de comunicação, criar conteúdo envolvente, construir uma marca pessoal forte e maximizar seu potencial na plataforma. É como ter um treinador pessoal para sua carreira digital!';
+        text.innerText = 'Oferecemos mentoria individual com especialistas em performance digital. Nossos mentores trabalham com você para desenvolver suas habilidades de comunicação, criar conteúdo envolvente, construir uma marca pessoal forte e maximizar seu potencial na plataforma.\n\nAssim como os filhotes de coruja aprendem a voar com orientação, nós guiamos você em cada etapa da sua jornada digital. É como ter um treinador pessoal para sua carreira digital!';
     }
 
     modal.style.display = 'flex';
