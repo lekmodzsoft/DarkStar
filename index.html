@@ -1,9 +1,9 @@
 <!doctype html>
 <html lang="pt-BR">
- <head>
+<head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Roleta Snow Coin</title>
+  <title>Roleta La tour</title>
   <style>
 /* ------------------------
    SEU CSS ORIGINAL (intacto)
@@ -351,7 +351,7 @@ canvas{border-radius:50%}
   backdrop-filter: blur(8px);
   border-radius: 40px;
   padding: 6px 12px;
-  margin-bottom: 16px;  /* espaçamento antes da roleta */
+  margin-bottom: 16px;
   border: 1px solid rgba(79, 220, 255, 0.15);
   box-shadow: 0 4px 20px rgba(0,0,0,0.5);
   overflow: hidden;
@@ -385,15 +385,15 @@ canvas{border-radius:50%}
 }
 
 /* cores por faixa de prêmio */
-.ticker-item[data-value="500"] { background: #808080; }        /* cinza */
-.ticker-item[data-value="1000"] { background: #4caf50; }       /* verde */
-.ticker-item[data-value="2000"] { background: #ffc107; color: #000; } /* amarelo */
-.ticker-item[data-value="4000"] { background: #ff9800; }       /* laranja (gold) */
-.ticker-item[data-value="10000"] { background: #9c27b0; }      /* roxo */
-.ticker-item[data-value="50000"] { background: #f44336; }      /* vermelho */
-.ticker-item[data-value="150000"] { background: #e91e63; }     /* rosa */
-.ticker-item[data-value="1000000"] { background: #2196f3; }    /* azul */
-.ticker-item[data-value="50000000"] { background: #ffd700; color: #000; } /* dourado */
+.ticker-item[data-value="500"] { background: #808080; }
+.ticker-item[data-value="1000"] { background: #4caf50; }
+.ticker-item[data-value="2000"] { background: #ffc107; color: #000; }
+.ticker-item[data-value="4000"] { background: #ff9800; }
+.ticker-item[data-value="10000"] { background: #9c27b0; }
+.ticker-item[data-value="50000"] { background: #f44336; }
+.ticker-item[data-value="150000"] { background: #e91e63; }
+.ticker-item[data-value="1000000"] { background: #2196f3; }
+.ticker-item[data-value="50000000"] { background: #ffd700; color: #000; }
 
 /* fallback para valores não mapeados */
 .ticker-item:not([data-value]) { background: #3a4050; }
@@ -430,530 +430,494 @@ canvas{border-radius:50%}
   text-shadow: 0 0 8px cyan;
 }
   </style>
- </head>
- <body>
-  <!-- ===== INTRO OVERLAY (POPOK-STYLE) ===== -->
+</head>
+<body>
+  <!-- ===== INTRO OVERLAY ===== -->
   <div id="introOverlay" aria-hidden="true">
     <div class="intro-vignette"></div>
-
     <div class="intro-center" role="img" aria-label="LA TOUR intro">
-      <!-- canvas (particles) -->
       <canvas id="introParticles" class="intro-canvas"></canvas>
-
       <div class="logo-wrap" id="logoWrap" style="will-change:transform;">
         <div class="logo-text logo-main">LA TOUR</div>
         <div class="logo-text logo-red" aria-hidden="true">LA TOUR</div>
         <div class="logo-text logo-cyan" aria-hidden="true">LA TOUR</div>
         <div class="logo-sub">ESTILO ESPORTS</div>
       </div>
-
       <div class="scanlines" aria-hidden="true"></div>
-
-      <!-- glitch slices (three quick slices) -->
       <div class="slice" id="slice1"><span class="s" style="background:transparent;"></span></div>
       <div class="slice" id="slice2"><span class="s" style="background:transparent;"></span></div>
       <div class="slice" id="slice3"><span class="s" style="background:transparent;"></span></div>
-
       <div class="intro-bar" aria-hidden="true">
         <div class="intro-progress" id="introProgress"></div>
       </div>
     </div>
   </div>
 
-  <!-- ===========================
-       CONTEÚDO PRINCIPAL (com novo ticker e banner)
-       =========================== -->
+  <!-- ===== CONTEÚDO PRINCIPAL ===== -->
   <div id="rootContent">
-  <div class="modal" id="modal">
-   <div class="modal-box">
-    <h3>🔐 Liberar Roleta</h3>
-    <p>Digite seu <b>Kako ID</b></p>
-    <input id="kakoInput" placeholder="ex: kako_123">
-    <button onclick="liberar()">Liberar</button>
-   </div>
-  </div>
-  <div class="app">
-   <div class="top-bar">
-    <div class="snow-coins">
-     <span>SNOW COINS</span>
-     <br>
-     <strong id="coins">0</strong>
-     <div class="kako-id" id="kakoShow">ID: —</div>
+    <div class="modal" id="modal">
+      <div class="modal-box">
+        <h3>🔐 Liberar Roleta</h3>
+        <p>Digite seu <b>Kako ID</b></p>
+        <input id="kakoInput" placeholder="ex: kako_123">
+        <button onclick="liberar()">Liberar</button>
+      </div>
     </div>
-    <button class="retirar">Retirar</button>
-   </div>
+    
+    <div class="app">
+      <div class="top-bar">
+        <div class="snow-coins">
+          <span>SNOW COINS</span><br>
+          <strong id="coins">0</strong>
+          <div class="kako-id" id="kakoShow">ID: —</div>
+        </div>
+        <button class="retirar">Retirar</button>
+      </div>
 
-   <!-- TICKER (abaixo do saldo) -->
-   <div class="winner-ticker" id="winnerTicker" role="status" aria-live="polite">
-     <div class="ticker-track" id="tickerTrack">
-       <!-- gerado via JS -->
-     </div>
-   </div>
+      <!-- TICKER -->
+      <div class="winner-ticker" id="winnerTicker" role="status" aria-live="polite">
+        <div class="ticker-track" id="tickerTrack"></div>
+      </div>
 
-   <!-- BANNER PROMOCIONAL -->
-   <div class="banner">
-     <a href="#" onclick="compartilharBanner(); return false;">
-       <span>🚀</span> Venha ganhar moedas para sua meta na Kako Live! Eu já ganhei 10.000🪙. <span>🔥</span>
-     </a>
-   </div>
+      <!-- BANNER -->
+      <div class="banner">
+        <a href="#" onclick="compartilharBanner(); return false;">
+          <span>🚀</span> Venha ganhar moedas para sua meta na Kako Live! Eu já ganhei 10.000🪙. <span>🔥</span>
+        </a>
+      </div>
 
-   <div class="card">
-    <h2>🎡 Roleta Snow Coin</h2>
-    <div class="roleta-area">
-     <div class="ponteiro"></div>
-     <div class="roleta-container" id="roletaBox">
-      <canvas id="roleta" width="320" height="320"></canvas>
-     </div>
-     <div class="centro desativado" id="girarBtn">GIRAR</div>
-    </div>
-    <div class="info">
-     🔄 Giros restantes: <b id="giros">1</b>
-    </div>
-   </div>
+      <div class="card">
+        <h2>🎡 Roleta Snow Coin</h2>
+        <div class="roleta-area">
+          <div class="ponteiro"></div>
+          <div class="roleta-container" id="roletaBox">
+            <canvas id="roleta" width="320" height="320"></canvas>
+          </div>
+          <div class="centro desativado" id="girarBtn">GIRAR</div>
+        </div>
+        <div class="info">🔄 Giros restantes: <b id="giros">1</b></div>
+      </div>
 
-   <div class="card">
-    <h2>🚀 Ganhe Mais Giros</h2>
-    <div class="acao">
-     📤 WhatsApp Status
-     <button onclick="ganharGiroWhatsApp(this)">+1</button>
+      <div class="card">
+        <h2>🚀 Ganhe Mais Giros</h2>
+        <div class="acao">📤 WhatsApp Status <button onclick="ganharGiroWhatsApp(this)">+1</button></div>
+        <div class="acao">📸 Instagram Stories <button onclick="ganharGiroInstagram(this)">+1</button></div>
+        <div class="acao">💬 Grupo WhatsApp <button onclick="ganharGiroGrupo(this)">+1</button></div>
+        <div class="acao">👥 Convide alguém <button onclick="semGiro(this)">Ir</button></div>
+      </div>
     </div>
-    <div class="acao">
-     📸 Instagram Stories
-     <button onclick="ganharGiroInstagram(this)">+1</button>
-    </div>
-    <div class="acao">
-     💬 Grupo WhatsApp
-     <button onclick="ganharGiroGrupo(this)">+1</button>
-    </div>
-    <div class="acao">
-     👥 Convide alguém
-     <button onclick="semGiro(this)">Ir</button>
-    </div>
-   </div>
-  </div>
   </div>
 
-  <!-- ===========================
-       SCRIPTS (lógica original + novas funcionalidades)
-       =========================== -->
+  <!-- ===== FIREBASE SDKs ===== -->
+  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+
   <script>
-/* --------- SUAS VARIÁVEIS E FUNÇÕES ORIGINAIS (intactas) --------- */
-const canvas=document.getElementById("roleta");
-const ctx=canvas.getContext("2d");
-const roletaBox=document.getElementById("roletaBox");
-const girarBtn=document.getElementById("girarBtn");
-const coinsEl=document.getElementById("coins");
-const girosEl=document.getElementById("giros");
-const kakoShow=document.getElementById("kakoShow");
-const kakoInput=document.getElementById("kakoInput");
-const modal=document.getElementById("modal");
+    // ====================================================
+    // 1. CONFIGURAÇÃO DO FIREBASE (SUAS CREDENCIAIS)
+    // ====================================================
+    const firebaseConfig = {
+      apiKey: "AIzaSyDyZPGpPf_Vtssofrqfxkdt_FqYYxOjYmI",
+      authDomain: "la-tour-coins.firebaseapp.com",
+      projectId: "la-tour-coins",
+      storageBucket: "la-tour-coins.firebasestorage.app",
+      messagingSenderId: "685945124674",
+      appId: "1:685945124674:web:6e8e06b4e36f5e55127adb",
+      measurementId: "G-SMR3710YEB"
+    };
 
-let coins=0,giros=1,girando=false,rotacaoAtual=0,ganhou10k=0;
+    // Inicializa Firebase
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.firestore();
 
-const premios=[
- {txt:"500",v:500,c:"#4fdcff",ch:90},
- {txt:"1.000",v:1000,c:"#00e676",ch:90},
- {txt:"2.000",v:2000,c:"#ffd54f",ch:88},
- {txt:"4.000",v:4000,c:"#ff7043",ch:70},
- {txt:"10.000",v:10000,c:"#ba68c8",ch:50},
- {txt:"50.000",v:50000,c:"#ff5252",ch:1},
- {txt:"150.000",v:150000,c:"#777",ch:0},
- {txt:"1.000.000",v:1000000,c:"#555",ch:0},
- {txt:"50.000.000",v:50000000,c:"#333",ch:0}
-];
+    // ====================================================
+    // 2. SEU CÓDIGO ORIGINAL (COMPLETO)
+    // ====================================================
+    const canvas = document.getElementById("roleta");
+    const ctx = canvas.getContext("2d");
+    const roletaBox = document.getElementById("roletaBox");
+    const girarBtn = document.getElementById("girarBtn");
+    const coinsEl = document.getElementById("coins");
+    const girosEl = document.getElementById("giros");
+    const kakoShow = document.getElementById("kakoShow");
+    const kakoInput = document.getElementById("kakoInput");
+    const modal = document.getElementById("modal");
 
-function desenhar(){
- const total=premios.length;
- const f=2*Math.PI/total;
- ctx.clearRect(0,0,320,320);
- premios.forEach((p,i)=>{
-  const a=i*f;
-  ctx.beginPath();
-  ctx.moveTo(160,160);
-  ctx.arc(160,160,160,a,a+f);
-  ctx.fillStyle=p.c;
-  ctx.fill();
-  ctx.save();
-  ctx.translate(160,160);
-  ctx.rotate(a+f/2);
-  ctx.textAlign="right";
-  ctx.fillStyle="#000";
-  ctx.font="bold 14px Arial";
-  ctx.fillText(p.txt+" COINS",145,6);
-  ctx.restore();
- });
-}
-desenhar();
+    let coins = 0, giros = 1, girando = false, rotacaoAtual = 0, ganhou10k = 0;
 
-function liberar(){
- if(!kakoInput.value.trim())return;
- kakoShow.textContent="ID: "+kakoInput.value;
- modal.style.display="none";
- girarBtn.classList.remove("desativado");
-}
+    const premios = [
+      { txt: "500", v: 500, c: "#4fdcff", ch: 90 },
+      { txt: "1.000", v: 1000, c: "#00e676", ch: 90 },
+      { txt: "2.000", v: 2000, c: "#ffd54f", ch: 88 },
+      { txt: "4.000", v: 4000, c: "#ff7043", ch: 70 },
+      { txt: "10.000", v: 10000, c: "#ba68c8", ch: 50 },
+      { txt: "50.000", v: 50000, c: "#ff5252", ch: 1 },
+      { txt: "150.000", v: 150000, c: "#777", ch: 0 },
+      { txt: "1.000.000", v: 1000000, c: "#555", ch: 0 },
+      { txt: "50.000.000", v: 50000000, c: "#333", ch: 0 }
+    ];
 
-/* SORTEIO: monta pool conforme pesos (ch). Se pool vazia, retorna um índice aleatório */
-function sortear(){
- let pool=[];
- premios.forEach((p,i)=>{
-  let ch=p.ch;
-  if(p.v===10000 && ganhou10k>=2) ch=0;
-  for(let x=0;x<ch;x++) pool.push(i);
- });
- if(pool.length===0){
-  // fallback: escolher aleatório entre todos (com ch>0 originalmente) ou entre todos índices
-  const poss = premios.map((_,i)=>i);
-  return poss[Math.floor(Math.random()*poss.length)];
- }
- return pool[Math.floor(Math.random()*pool.length)];
-}
-
-/* cálculo relativo correto (última versão corrigida) */
-girarBtn.onclick=()=>{
- if(girando||giros<=0)return;
-
- girando=true;
- giros--;
- girosEl.textContent=giros;
- girarBtn.classList.add("desativado");
-
- const index=sortear();
- const total=premios.length;
- const fatia=360/total;
- const voltas=6;
-
- const centroSetor=(index+0.5)*fatia;
- const ponteiro=270;
-
- const atualNormal=((rotacaoAtual%360)+360)%360;
- const anguloAtualNoPonteiro=((ponteiro-atualNormal)+360)%360;
-
- let delta=anguloAtualNoPonteiro-centroSetor;
- delta=((delta%360)+360)%360;
-
- rotacaoAtual+=voltas*360+delta;
-
- roletaBox.style.transform=`rotate(${rotacaoAtual}deg)`;
-
- setTimeout(()=>{
-  const premio=premios[index];
-  coins+=premio.v;
-  if(premio.v===10000)ganhou10k++;
-  coinsEl.textContent=coins;
-
-  // === ADICIONADO: registrar vencedor no ticker ===
-  (function(){
-    try{
-      const uid = kakoInput.value.trim() || (kakoShow.textContent.replace('ID: ','') || 'ID_anônimo');
-      const msg = `${uid} ganhou ${premio.v}🪙`;
-      addWinnerToTicker(msg, premio.v);
-    }catch(e){
-      console.warn('Ticker add error', e);
-    }
-  })();
-  // ===============================================
-
-  alert(`🎉 Você ganhou ${premio.txt} SNOW COINS`);
-  girando=false;
-  if(giros>0) girarBtn.classList.remove("desativado");
- },4000);
-};
-
-/* ------------------------
-   NOVAS FUNÇÕES PARA COMPARTILHAMENTO E GIROS
-   ------------------------ */
-
-// Função auxiliar para marcar botão como concluído e dar giro
-function concluirEGanharGiro(botao) {
-  if (botao.classList.contains("concluido")) return false;
-  giros++;
-  girosEl.textContent = giros;
-  botao.textContent = "✔";
-  botao.classList.add("concluido");
-  return true;
-}
-
-// WhatsApp Status
-function ganharGiroWhatsApp(botao) {
-  if (!concluirEGanharGiro(botao)) return;
-  const texto = encodeURIComponent(
-    "🚀 Venha ganhar moedas para sua meta na Kako Live! Eu já ganhei 10.000🪙. Gire você também: " + window.location.href
-  );
-  // Tenta abrir o link para WhatsApp status (funciona em dispositivos móveis)
-  window.location.href = `https://api.whatsapp.com/send?text=${texto}`;
-}
-
-// Instagram Stories (abre Instagram ou copia link)
-function ganharGiroInstagram(botao) {
-  if (!concluirEGanharGiro(botao)) return;
-  const texto = encodeURIComponent(
-    "🚀 Venha ganhar moedas para sua meta na Kako Live! Eu já ganhei 10.000🪙. Gire você também: " + window.location.href
-  );
-  // Tenta abrir Instagram stories (funciona melhor no celular com app)
-  window.location.href = `https://www.instagram.com/`;
-  alert("Copie o link e cole nos stories: " + decodeURIComponent(texto));
-}
-
-// Grupo WhatsApp
-function ganharGiroGrupo(botao) {
-  if (!concluirEGanharGiro(botao)) return;
-  const texto = encodeURIComponent(
-    "🚀 Venha ganhar moedas para sua meta na Kako Live! Eu já ganhei 10.000🪙. Gire você também: " + window.location.href
-  );
-  window.location.href = `https://api.whatsapp.com/send?text=${texto}`;
-}
-
-// Convite (simulado)
-function semGiro(b) {
-  if (b.classList.contains("concluido")) return;
-  b.textContent = "✔";
-  b.classList.add("concluido");
-  alert("Convite registrado! (simulado)");
-}
-
-// Banner compartilhar
-function compartilharBanner() {
-  const texto = encodeURIComponent(
-    "🚀 Venha ganhar moedas para sua meta na Kako Live! Eu já ganhei 10.000🪙. Gire você também: " + window.location.href
-  );
-  window.location.href = `https://api.whatsapp.com/send?text=${texto}`;
-}
-
-/* ------------------------
-   INTRO JS (POPOK-STYLE)
-   ------------------------ */
-(function(){
-  const overlay = document.getElementById('introOverlay');
-  const logoWrap = document.getElementById('logoWrap');
-  const logoMain = logoWrap.querySelector('.logo-main');
-  const logoRed  = logoWrap.querySelector('.logo-red');
-  const logoCyan = logoWrap.querySelector('.logo-cyan');
-  const progress = document.getElementById('introProgress');
-  const slice1 = document.getElementById('slice1');
-  const slice2 = document.getElementById('slice2');
-  const slice3 = document.getElementById('slice3');
-  const canvas = document.getElementById('introParticles');
-  const ctxC = canvas.getContext ? canvas.getContext('2d') : null;
-
-  // resize canvas
-  function fitCanvas(){
-    const rect = overlay.getBoundingClientRect();
-    canvas.width = rect.width;
-    canvas.height = rect.height;
-  }
-  fitCanvas();
-  window.addEventListener('resize', fitCanvas);
-
-  // simple particle system (sparks)
-  const particles = [];
-  function spawnParticles(){
-    for(let i=0;i<18;i++){
-      particles.push({
-        x: canvas.width*0.5 + (Math.random()-0.5)*180,
-        y: canvas.height*0.46 + (Math.random()-0.5)*40,
-        vx: (Math.random()-0.5)*2.4,
-        vy: -Math.random()*2 - 0.6,
-        life: 40 + Math.random()*30,
-        size: 1 + Math.random()*2.2,
-        color: `rgba(255,${40+Math.floor(Math.random()*130)},${40+Math.floor(Math.random()*40)},1)`
+    function desenhar() {
+      const total = premios.length;
+      const f = 2 * Math.PI / total;
+      ctx.clearRect(0, 0, 320, 320);
+      premios.forEach((p, i) => {
+        const a = i * f;
+        ctx.beginPath();
+        ctx.moveTo(160, 160);
+        ctx.arc(160, 160, 160, a, a + f);
+        ctx.fillStyle = p.c;
+        ctx.fill();
+        ctx.save();
+        ctx.translate(160, 160);
+        ctx.rotate(a + f / 2);
+        ctx.textAlign = "right";
+        ctx.fillStyle = "#000";
+        ctx.font = "bold 14px Arial";
+        ctx.fillText(p.txt + " COINS", 145, 6);
+        ctx.restore();
       });
     }
-  }
+    desenhar();
 
-  function renderParticles(){
-    if(!ctxC) return;
-    ctxC.clearRect(0,0,canvas.width,canvas.height);
-    for(let i=particles.length-1;i>=0;i--){
-      const p = particles[i];
-      p.x += p.vx;
-      p.y += p.vy;
-      p.vy += 0.06;
-      p.life--;
-      ctxC.beginPath();
-      ctxC.fillStyle = p.color;
-      ctxC.globalAlpha = Math.max(0, p.life / 70);
-      ctxC.fillRect(p.x, p.y, p.size, p.size);
-      ctxC.globalAlpha = 1;
-      if(p.life<=0) particles.splice(i,1);
+    function liberar() {
+      if (!kakoInput.value.trim()) return;
+      kakoShow.textContent = "ID: " + kakoInput.value;
+      modal.style.display = "none";
+      girarBtn.classList.remove("desativado");
     }
-  }
 
-  // run particle bursts at intervals
-  let particleTimer = 0;
-  function particleLoop(){
-    particleTimer++;
-    if(particleTimer % 18 === 0) spawnParticles();
-    renderParticles();
-    requestAnimationFrame(particleLoop);
-  }
-  particleLoop();
+    function sortear() {
+      let pool = [];
+      premios.forEach((p, i) => {
+        let ch = p.ch;
+        if (p.v === 10000 && ganhou10k >= 2) ch = 0;
+        for (let x = 0; x < ch; x++) pool.push(i);
+      });
+      if (pool.length === 0) {
+        const poss = premios.map((_, i) => i);
+        return poss[Math.floor(Math.random() * poss.length)];
+      }
+      return pool[Math.floor(Math.random() * pool.length)];
+    }
 
-  // controlled progress animation (timed)
-  function animateIntro(){
-    // timeline
-    overlay.style.opacity = '1';
-    overlay.style.transform = 'translateY(0)';
-    // small entrance bounce
-    logoWrap.style.transform = 'translateY(2px) scale(0.98)';
-    setTimeout(()=> logoWrap.style.transition = 'transform .6s cubic-bezier(.2,.8,.2,1)', 10);
+    girarBtn.onclick = () => {
+      if (girando || giros <= 0) return;
 
-    // progress bar animated by JS for exact control (ease)
-    const duration = 2500; // total ms
-    const start = performance.now();
-    function step(now){
-      const t = Math.min(1, (now - start)/duration);
-      // easeOutCubic
-      const e = 1 - Math.pow(1 - t, 3);
-      progress.style.width = (e*100) + '%';
+      girando = true;
+      giros--;
+      girosEl.textContent = giros;
+      girarBtn.classList.add("desativado");
 
-      // occasional glitch tweaks: translate rgb layers
-      if(t > 0.12 && Math.random() < 0.12){
-        logoRed.style.transform = `translate3d(${ -6 + Math.random()* -18 }px, ${Math.random()*6-3}px, 0)`;
-        logoCyan.style.transform = `translate3d(${ 6 + Math.random()*18 }px, ${Math.random()*6-3}px, 0)`;
-      } else {
-        logoRed.style.transform = 'translate3d(-6px, 0, 0)';
-        logoCyan.style.transform = 'translate3d(6px, 0, 0)';
+      const index = sortear();
+      const total = premios.length;
+      const fatia = 360 / total;
+      const voltas = 6;
+
+      const centroSetor = (index + 0.5) * fatia;
+      const ponteiro = 270;
+
+      const atualNormal = ((rotacaoAtual % 360) + 360) % 360;
+      const anguloAtualNoPonteiro = ((ponteiro - atualNormal) + 360) % 360;
+
+      let delta = anguloAtualNoPonteiro - centroSetor;
+      delta = ((delta % 360) + 360) % 360;
+
+      rotacaoAtual += voltas * 360 + delta;
+
+      roletaBox.style.transform = `rotate(${rotacaoAtual}deg)`;
+
+      setTimeout(() => {
+        const premio = premios[index];
+        coins += premio.v;
+        if (premio.v === 10000) ganhou10k++;
+        coinsEl.textContent = coins;
+
+        const uid = kakoInput.value.trim() || (kakoShow.textContent.replace('ID: ', '') || 'ID_anônimo');
+        const msg = `${uid} ganhou ${premio.v}🪙`;
+        
+        // Salva no Firebase e atualiza ticker
+        salvarNoFirebase(msg, premio.v);
+        addWinnerToTicker(msg, premio.v);
+
+        alert(`🎉 Você ganhou ${premio.txt} SNOW COINS`);
+        girando = false;
+        if (giros > 0) girarBtn.classList.remove("desativado");
+      }, 4000);
+    };
+
+    // Funções de compartilhamento
+    function concluirEGanharGiro(botao) {
+      if (botao.classList.contains("concluido")) return false;
+      giros++;
+      girosEl.textContent = giros;
+      botao.textContent = "✔";
+      botao.classList.add("concluido");
+      return true;
+    }
+
+    window.ganharGiroWhatsApp = function(botao) {
+      if (!concluirEGanharGiro(botao)) return;
+      const texto = encodeURIComponent("🚀 Venha ganhar moedas para sua meta na Kako Live! Eu já ganhei 10.000🪙. Gire você também: " + window.location.href);
+      window.location.href = `https://api.whatsapp.com/send?text=${texto}`;
+    };
+
+    window.ganharGiroInstagram = function(botao) {
+      if (!concluirEGanharGiro(botao)) return;
+      const texto = encodeURIComponent("🚀 Venha ganhar moedas para sua meta na Kako Live! Eu já ganhei 10.000🪙. Gire você também: " + window.location.href);
+      window.location.href = `https://www.instagram.com/`;
+      alert("Copie o link e cole nos stories: " + decodeURIComponent(texto));
+    };
+
+    window.ganharGiroGrupo = function(botao) {
+      if (!concluirEGanharGiro(botao)) return;
+      const texto = encodeURIComponent("🚀 Venha ganhar moedas para sua meta na Kako Live! Eu já ganhei 10.000🪙. Gire você também: " + window.location.href);
+      window.location.href = `https://api.whatsapp.com/send?text=${texto}`;
+    };
+
+    window.semGiro = function(b) {
+      if (b.classList.contains("concluido")) return;
+      b.textContent = "✔";
+      b.classList.add("concluido");
+      alert("Convite registrado! (simulado)");
+    };
+
+    window.compartilharBanner = function() {
+      const texto = encodeURIComponent("🚀 Venha ganhar moedas para sua meta na Kako Live! Eu já ganhei 10.000🪙. Gire você também: " + window.location.href);
+      window.location.href = `https://api.whatsapp.com/send?text=${texto}`;
+    };
+
+    // ====================================================
+    // 3. FUNÇÕES DO TICKER (modificadas para Firebase)
+    // ====================================================
+    const tickerTrack = document.getElementById('tickerTrack');
+    let winners = [];
+
+    function createItem(msg, valor) {
+      const span = document.createElement('span');
+      span.className = 'ticker-item';
+      span.textContent = msg;
+      span.setAttribute('data-value', valor);
+      return span;
+    }
+
+    function renderTrack() {
+      const fragment1 = document.createDocumentFragment();
+      const fragment2 = document.createDocumentFragment();
+
+      winners.forEach(w => {
+        fragment1.appendChild(createItem(w.text, w.value));
+      });
+      winners.forEach(w => {
+        fragment2.appendChild(createItem(w.text, w.value));
+      });
+
+      tickerTrack.innerHTML = '';
+      tickerTrack.appendChild(fragment1);
+      tickerTrack.appendChild(fragment2);
+
+      tickerTrack.style.animation = 'none';
+      setTimeout(() => {
+        tickerTrack.style.animation = '';
+        tickerTrack.style.animation = 'marquee 20s linear infinite';
+      }, 10);
+    }
+
+    window.addWinnerToTicker = function(msg, valor) {
+      if (!msg) return;
+      let v = valor;
+      if (v === undefined) {
+        const match = msg.match(/(\d+)/);
+        v = match ? parseInt(match[0]) : 0;
+      }
+      winners.unshift({ text: msg, value: v });
+      if (winners.length > 30) winners.pop();
+      renderTrack();
+    };
+
+    // ====================================================
+    // 4. FUNÇÕES DO FIREBASE (SALVAR E CARREGAR)
+    // ====================================================
+    async function salvarNoFirebase(msg, valor) {
+      try {
+        await db.collection("ganhadores").add({
+          mensagem: msg,
+          valor: valor,
+          timestamp: firebase.firestore.FieldValue.serverTimestamp()
+        });
+        console.log("✅ Ganhador salvo!");
+      } catch (error) {
+        console.error("❌ Erro ao salvar:", error);
+      }
+    }
+
+    async function carregarGanhadores() {
+      try {
+        const snapshot = await db.collection("ganhadores")
+          .orderBy("timestamp", "desc")
+          .limit(30)
+          .get();
+
+        winners = [];
+        snapshot.forEach(doc => {
+          const data = doc.data();
+          winners.push({ text: data.mensagem, value: data.valor });
+        });
+
+        renderTrack();
+        console.log("✅ Ganhadores carregados!");
+      } catch (error) {
+        console.error("❌ Erro ao carregar:", error);
+        // Fallback: dados iniciais
+        winners = [
+          { text: "ID_893 ganhou 4000🪙", value: 4000 },
+          { text: "karol_22 ganhou 10000🪙", value: 10000 }
+        ];
+        renderTrack();
+      }
+    }
+
+    // Carrega os ganhadores quando a página iniciar
+    carregarGanhadores();
+
+    // ====================================================
+    // 5. INTRO POPOK (mantido intacto)
+    // ====================================================
+    (function(){
+      const overlay = document.getElementById('introOverlay');
+      const logoWrap = document.getElementById('logoWrap');
+      const logoRed = logoWrap.querySelector('.logo-red');
+      const logoCyan = logoWrap.querySelector('.logo-cyan');
+      const progress = document.getElementById('introProgress');
+      const slice1 = document.getElementById('slice1');
+      const slice2 = document.getElementById('slice2');
+      const slice3 = document.getElementById('slice3');
+      const canvas = document.getElementById('introParticles');
+      const ctxC = canvas.getContext ? canvas.getContext('2d') : null;
+
+      function fitCanvas(){
+        const rect = overlay.getBoundingClientRect();
+        canvas.width = rect.width;
+        canvas.height = rect.height;
+      }
+      fitCanvas();
+      window.addEventListener('resize', fitCanvas);
+
+      const particles = [];
+      function spawnParticles(){
+        for(let i=0;i<18;i++){
+          particles.push({
+            x: canvas.width*0.5 + (Math.random()-0.5)*180,
+            y: canvas.height*0.46 + (Math.random()-0.5)*40,
+            vx: (Math.random()-0.5)*2.4,
+            vy: -Math.random()*2 - 0.6,
+            life: 40 + Math.random()*30,
+            size: 1 + Math.random()*2.2,
+            color: `rgba(255,${40+Math.floor(Math.random()*130)},${40+Math.floor(Math.random()*40)},1)`
+          });
+        }
       }
 
-      // slice glitch triggers
-      if(Math.random() < 0.03){
-        triggerSlice(slice1, 1);
-      }
-      if(Math.random() < 0.02){
-        triggerSlice(slice2, 2);
-      }
-      if(Math.random() < 0.015){
-        triggerSlice(slice3, 3);
+      function renderParticles(){
+        if(!ctxC) return;
+        ctxC.clearRect(0,0,canvas.width,canvas.height);
+        for(let i=particles.length-1;i>=0;i--){
+          const p = particles[i];
+          p.x += p.vx;
+          p.y += p.vy;
+          p.vy += 0.06;
+          p.life--;
+          ctxC.beginPath();
+          ctxC.fillStyle = p.color;
+          ctxC.globalAlpha = Math.max(0, p.life / 70);
+          ctxC.fillRect(p.x, p.y, p.size, p.size);
+          ctxC.globalAlpha = 1;
+          if(p.life<=0) particles.splice(i,1);
+        }
       }
 
-      if(t < 1){
+      let particleTimer = 0;
+      function particleLoop(){
+        particleTimer++;
+        if(particleTimer % 18 === 0) spawnParticles();
+        renderParticles();
+        requestAnimationFrame(particleLoop);
+      }
+      particleLoop();
+
+      function animateIntro(){
+        overlay.style.opacity = '1';
+        overlay.style.transform = 'translateY(0)';
+        logoWrap.style.transform = 'translateY(2px) scale(0.98)';
+        setTimeout(()=> logoWrap.style.transition = 'transform .6s cubic-bezier(.2,.8,.2,1)', 10);
+
+        const duration = 2500;
+        const start = performance.now();
+        function step(now){
+          const t = Math.min(1, (now - start)/duration);
+          const e = 1 - Math.pow(1 - t, 3);
+          progress.style.width = (e*100) + '%';
+
+          if(t > 0.12 && Math.random() < 0.12){
+            logoRed.style.transform = `translate3d(${ -6 + Math.random()* -18 }px, ${Math.random()*6-3}px, 0)`;
+            logoCyan.style.transform = `translate3d(${ 6 + Math.random()*18 }px, ${Math.random()*6-3}px, 0)`;
+          } else {
+            logoRed.style.transform = 'translate3d(-6px, 0, 0)';
+            logoCyan.style.transform = 'translate3d(6px, 0, 0)';
+          }
+
+          if(Math.random() < 0.03) triggerSlice(slice1, 1);
+          if(Math.random() < 0.02) triggerSlice(slice2, 2);
+          if(Math.random() < 0.015) triggerSlice(slice3, 3);
+
+          if(t < 1){
+            requestAnimationFrame(step);
+          } else {
+            finalBurstAndHide();
+          }
+        }
         requestAnimationFrame(step);
-      } else {
-        // final micro-glitch burst then hide
-        finalBurstAndHide();
       }
-    }
-    requestAnimationFrame(step);
-  }
 
-  function triggerSlice(el, idx){
-    // apply a random small clip and translate to simulate slice glitch
-    el.style.transition = 'none';
-    const h = 10 + Math.floor(Math.random()*40);
-    const top = 30 + Math.floor(Math.random()*60);
-    el.querySelector('.s').style.clipPath = `inset(${top}% 0 ${100-top-h}% 0)`;
-    el.querySelector('.s').style.transform = `translateX(${ (Math.random()>0.5? -1:1) * (6 + Math.random()*36) }px) skewX(${ (Math.random()>0.5? -1:1) * (2 + Math.random()*6) }deg)`;
-    el.style.opacity = 1;
-    // fade out
-    setTimeout(()=>{
-      el.querySelector('.s').style.transform = 'translateX(0) skewX(0)';
-      el.querySelector('.s').style.clipPath = 'inset(0 0 0 0)';
-      el.style.opacity = 0;
-    }, 120 + Math.random()*180);
-  }
+      function triggerSlice(el, idx){
+        el.style.transition = 'none';
+        const h = 10 + Math.floor(Math.random()*40);
+        const top = 30 + Math.floor(Math.random()*60);
+        el.querySelector('.s').style.clipPath = `inset(${top}% 0 ${100-top-h}% 0)`;
+        el.querySelector('.s').style.transform = `translateX(${ (Math.random()>0.5? -1:1) * (6 + Math.random()*36) }px) skewX(${ (Math.random()>0.5? -1:1) * (2 + Math.random()*6) }deg)`;
+        el.style.opacity = 1;
+        setTimeout(()=>{
+          el.querySelector('.s').style.transform = 'translateX(0) skewX(0)';
+          el.querySelector('.s').style.clipPath = 'inset(0 0 0 0)';
+          el.style.opacity = 0;
+        }, 120 + Math.random()*180);
+      }
 
-  function finalBurstAndHide(){
-    // larger particle burst
-    for(let i=0;i<6;i++) spawnParticles();
-    // intense quick glitches (RGB slap)
-    logoRed.style.transition = 'transform .12s';
-    logoCyan.style.transition = 'transform .12s';
-    logoRed.style.transform = 'translate3d(-24px,-2px,0) scale(1.04) skewX(-6deg)';
-    logoCyan.style.transform = 'translate3d(22px,2px,0) scale(1.04) skewX(6deg)';
-    setTimeout(()=>{
-      logoRed.style.transform = 'translate3d(-6px,0,0)';
-      logoCyan.style.transform = 'translate3d(6px,0,0)';
-    }, 160);
+      function finalBurstAndHide(){
+        for(let i=0;i<6;i++) spawnParticles();
+        logoRed.style.transition = 'transform .12s';
+        logoCyan.style.transition = 'transform .12s';
+        logoRed.style.transform = 'translate3d(-24px,-2px,0) scale(1.04) skewX(-6deg)';
+        logoCyan.style.transform = 'translate3d(22px,2px,0) scale(1.04) skewX(6deg)';
+        setTimeout(()=>{
+          logoRed.style.transform = 'translate3d(-6px,0,0)';
+          logoCyan.style.transform = 'translate3d(6px,0,0)';
+        }, 160);
 
-    // small screen shake
-    overlay.animate([{ transform: 'translateY(0)' }, { transform: 'translateY(-6px)' }, { transform: 'translateY(0)' }], {duration: 380, easing:'ease-out'});
+        overlay.animate([{ transform: 'translateY(0)' }, { transform: 'translateY(-6px)' }, { transform: 'translateY(0)' }], {duration: 380, easing:'ease-out'});
 
-    // fade-out slightly after
-    setTimeout(()=>{
-      overlay.style.transition = 'opacity .6s ease, transform .6s ease';
-      overlay.style.opacity = '0';
-      overlay.style.transform = 'translateY(-20px)';
-      setTimeout(()=> {
-        overlay.remove();
-      }, 650);
-    }, 220);
-  }
+        setTimeout(()=>{
+          overlay.style.transition = 'opacity .6s ease, transform .6s ease';
+          overlay.style.opacity = '0';
+          overlay.style.transform = 'translateY(-20px)';
+          setTimeout(()=> overlay.remove(), 650);
+        }, 220);
+      }
 
-  // start when window loaded (so fonts/images ready)
-  window.addEventListener('load', function(){
-    // slight delay so user sees full effect like Popok
-    setTimeout(animateIntro, 160);
-  });
-
-})(); // IIFE end
-
-/* ===========================
-   TICKER JS: gerencia mensagens com cores e border-radius
-   =========================== */
-(function(){
-  const tickerTrack = document.getElementById('tickerTrack');
-
-  // histórico inicial
-  const winners = [
-    { text: "ID_893 ganhou 4000🪙", value: 4000 },
-    { text: "karol_22 ganhou 10000🪙", value: 10000 },
-    { text: "gamerx ganhou 500🪙", value: 500 },
-    { text: "luis123 ganhou 2000🪙", value: 2000 }
-  ];
-
-  // função para criar um item HTML com cor baseada no valor
-  function createItem(msg, valor) {
-    const span = document.createElement('span');
-    span.className = 'ticker-item';
-    span.textContent = msg;
-    span.setAttribute('data-value', valor);
-    return span;
-  }
-
-  // renderiza o track com duplicação para marquee infinito
-  function renderTrack() {
-    // cria dois conjuntos idênticos para dar sensação de continuidade
-    const fragment1 = document.createDocumentFragment();
-    const fragment2 = document.createDocumentFragment();
-
-    winners.forEach(w => {
-      fragment1.appendChild(createItem(w.text, w.value));
-    });
-    winners.forEach(w => {
-      fragment2.appendChild(createItem(w.text, w.value));
-    });
-
-    tickerTrack.innerHTML = '';
-    tickerTrack.appendChild(fragment1);
-    tickerTrack.appendChild(fragment2);
-
-    // força reinício da animação (para não acumular)
-    tickerTrack.style.animation = 'none';
-    setTimeout(() => {
-      tickerTrack.style.animation = '';
-      tickerTrack.style.animation = 'marquee 20s linear infinite';
-    }, 10);
-  }
-
-  // expõe função global para adicionar novo vencedor
-  window.addWinnerToTicker = function(msg, valor) {
-    if (!msg) return;
-    // extrai o valor se não foi passado (para manter compatibilidade)
-    let v = valor;
-    if (v === undefined) {
-      const match = msg.match(/(\d+)/);
-      v = match ? parseInt(match[0]) : 0;
-    }
-    winners.unshift({ text: msg, value: v });
-    if (winners.length > 30) winners.pop();
-    renderTrack();
-  };
-
-  // inicializa
-  renderTrack();
-})();
-
-/* FIM DO SCRIPT */
+      window.addEventListener('load', function(){
+        setTimeout(animateIntro, 160);
+      });
+    })();
   </script>
- </body>
+</body>
 </html>
