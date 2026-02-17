@@ -922,6 +922,11 @@ canvas{border-radius:50%}
         if (doc.exists) {
           const dados = doc.data();
           
+          // ========== CORREÇÃO: CARREGAR O SALDO NO TOPO ==========
+          coins = dados.totalGanho || 0;
+          coinsEl.textContent = coins;
+          // ========================================================
+
           // Formata a data
           const ultimoLogin = dados.ultimaParticipacao ? new Date(dados.ultimaParticipacao).toLocaleDateString('pt-BR') : '—';
           
