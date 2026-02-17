@@ -668,12 +668,23 @@ canvas{border-radius:50%}
 
   <!-- ===== CONTEÚDO PRINCIPAL ===== -->
   <div id="rootContent">
+    <!-- MODAL DE LOGIN (adicionado botão de contato) -->
     <div class="modal" id="modal">
       <div class="modal-box">
         <h3>🔐 Liberar Roleta</h3>
         <p>Digite seu <b>Kako ID</b></p>
         <input id="kakoInput" placeholder="ex: kako_123">
         <button onclick="liberar()">Liberar</button>
+        
+        <!-- NOVO: Texto e botão de contato -->
+        <div style="margin-top: 15px; padding-top: 10px; border-top: 1px solid #2a2f3f;">
+          <p style="margin: 5px 0 8px 0; color: #9adfff; font-size: 13px;">Não faz parte da agência La Tour?</p>
+          <a href="https://wa.me/5534996359355" target="_blank" style="text-decoration: none;">
+            <button style="background: #25D366; color: white; font-weight: bold; padding: 8px; border: none; border-radius: 10px; width: 100%; cursor: pointer;">
+              📱 Entre em contato conosco
+            </button>
+          </a>
+        </div>
       </div>
     </div>
     
@@ -1650,4 +1661,4 @@ canvas{border-radius:50%}
     document.querySelector('.retirar').addEventListener('click', abrirRetirada);
   </script>
 </body>
-              </html>
+</html>
