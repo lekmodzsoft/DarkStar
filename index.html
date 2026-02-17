@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Roleta La tour</title>
+  <title>Roleta Snow Coin</title>
   <style>
 /* ------------------------
    SEU CSS ORIGINAL (intacto)
@@ -544,6 +544,7 @@ canvas{border-radius:50%}
     const modal = document.getElementById("modal");
 
     let coins = 0, giros = 1, girando = false, rotacaoAtual = 0, ganhou10k = 0;
+    let participanteAtual = null; // Armazena o ID do participante atual
 
     const premios = [
       { txt: "500", v: 500, c: "#4fdcff", ch: 90 },
@@ -580,11 +581,112 @@ canvas{border-radius:50%}
     }
     desenhar();
 
+    // ====================================================
+    // NOVA FUNÇÃO: Salvar participante no Firebase
+    // ====================================================
+    async function salvarParticipante(id) {
+      try {
+        // Verifica se o participante já existe
+        const docRef = db.collection("participantes").doc(id);
+        const doc = await docRef.get();
+        
+        const hoje = new Date().toISOString().split('T')[0]; // Data de hoje (YYYY-MM-DD)
+        
+        if (doc.exists) {
+          // Participante já existe, atualiza a data de última participação
+          await docRef.update({
+            ultimaParticipacao: hoje,
+            historico: firebase.firestore.FieldValue.arrayUnion({
+              data: hoje,
+              acao: "acessou"
+            })
+          });
+          console.log(`✅ Participante ${id} atualizado!`);
+        } else {
+          // Novo participante
+          await docRef.set({
+            id: id,
+            primeiraParticipacao: hoje,
+            ultimaParticipacao: hoje,
+            totalGanho: 0,
+            vezesJogou: 0,
+            historico: [{
+              data: hoje,
+              acao: "primeiro_acesso"
+            }]
+          });
+          console.log(`✅ Novo participante ${id} salvo!`);
+        }
+        
+        participanteAtual = id;
+      } catch (error) {
+        console.error("❌ Erro ao salvar participante:", error);
+      }
+    }
+
+    // ====================================================
+    // NOVA FUNÇÃO: Registrar ganho do participante
+    // ====================================================
+    async function registrarGanhoParticipante(id, valorGanho) {
+      if (!id) return;
+      
+      try {
+        const docRef = db.collection("participantes").doc(id);
+        const doc = await docRef.get();
+        
+        const hoje = new Date().toISOString().split('T')[0];
+        const timestamp = new Date().toISOString();
+        
+        if (doc.exists) {
+          // Participante existe, atualiza totalGanho e adiciona ao histórico
+          const dadosAtuais = doc.data();
+          const novoTotal = (dadosAtuais.totalGanho || 0) + valorGanho;
+          const novasVezes = (dadosAtuais.vezesJogou || 0) + 1;
+          
+          await docRef.update({
+            totalGanho: novoTotal,
+            vezesJogou: novasVezes,
+            ultimaParticipacao: hoje,
+            historico: firebase.firestore.FieldValue.arrayUnion({
+              data: timestamp,
+              valorGanho: valorGanho,
+              tipo: "giro"
+            })
+          });
+          console.log(`✅ Ganho de ${valorGanho} registrado para ${id}`);
+        } else {
+          // Se por algum motivo não existir, cria o registro
+          await docRef.set({
+            id: id,
+            primeiraParticipacao: hoje,
+            ultimaParticipacao: hoje,
+            totalGanho: valorGanho,
+            vezesJogou: 1,
+            historico: [{
+              data: timestamp,
+              valorGanho: valorGanho,
+              tipo: "giro"
+            }]
+          });
+          console.log(`✅ Novo participante ${id} criado com ganho de ${valorGanho}`);
+        }
+      } catch (error) {
+        console.error("❌ Erro ao registrar ganho:", error);
+      }
+    }
+
+    // ====================================================
+    // FUNÇÃO MODIFICADA: liberar (agora salva o participante)
+    // ====================================================
     function liberar() {
       if (!kakoInput.value.trim()) return;
-      kakoShow.textContent = "ID: " + kakoInput.value;
+      const idDigitado = kakoInput.value.trim();
+      kakoShow.textContent = "ID: " + idDigitado;
       modal.style.display = "none";
       girarBtn.classList.remove("desativado");
+      
+      // Salva o participante no Firebase
+      salvarParticipante(idDigitado);
     }
 
     function sortear() {
@@ -601,6 +703,9 @@ canvas{border-radius:50%}
       return pool[Math.floor(Math.random() * pool.length)];
     }
 
+    // ====================================================
+    // FUNÇÃO MODIFICADA: girarBtn.onclick (agora registra ganho)
+    // ====================================================
     girarBtn.onclick = () => {
       if (girando || giros <= 0) return;
 
@@ -636,8 +741,13 @@ canvas{border-radius:50%}
         const uid = kakoInput.value.trim() || (kakoShow.textContent.replace('ID: ', '') || 'ID_anônimo');
         const msg = `${uid} ganhou ${premio.v}🪙`;
         
-        // Salva no Firebase e atualiza ticker
+        // Salva no Firebase (ganhadores para o ticker)
         salvarNoFirebase(msg, premio.v);
+        
+        // Registra o ganho do participante
+        registrarGanhoParticipante(uid, premio.v);
+        
+        // Atualiza ticker local
         addWinnerToTicker(msg, premio.v);
 
         alert(`🎉 Você ganhou ${premio.txt} SNOW COINS`);
