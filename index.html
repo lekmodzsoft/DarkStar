@@ -744,10 +744,10 @@ canvas{border-radius:50%}
 
       <div class="card">
         <h2>🚀 Ganhe Mais Giros</h2>
-        <div class="acao" id="ativWhatsApp">📤 WhatsApp Status <button onclick="ganharGiroWhatsApp(this)">+1</button></div>
-        <div class="acao" id="ativInstagram">📸 Instagram Stories <button onclick="ganharGiroInstagram(this)">+1</button></div>
-        <div class="acao" id="ativGrupo">💬 Grupo WhatsApp <button onclick="ganharGiroGrupo(this)">+1</button></div>
-        <div class="acao" id="ativConvide">👥 Convide alguém <button onclick="semGiro(this)">+1</button></div>
+        <div class="acao" id="ativWhatsApp">📤 WhatsApp Status <button onclick="ganharGiroWhatsApp(this)" id="btnWhatsApp">+1</button></div>
+        <div class="acao" id="ativInstagram">📸 Instagram Stories <button onclick="ganharGiroInstagram(this)" id="btnInstagram">+1</button></div>
+        <div class="acao" id="ativGrupo">💬 Grupo WhatsApp <button onclick="ganharGiroGrupo(this)" id="btnGrupo">+1</button></div>
+        <div class="acao" id="ativConvide">👥 Convide alguém <button onclick="semGiro(this)" id="btnConvide">+1</button></div>
       </div>
     </div>
   </div>
@@ -833,10 +833,15 @@ canvas{border-radius:50%}
     const statusAtividade = document.getElementById('statusAtividade');
     const limiteAviso = document.getElementById('limiteAviso');
 
+    // Botões das atividades
+    const btnWhatsApp = document.getElementById('btnWhatsApp');
+    const btnInstagram = document.getElementById('btnInstagram');
+    const btnGrupo = document.getElementById('btnGrupo');
+    const btnConvide = document.getElementById('btnConvide');
+
     let coins = 0, giros = 0, girando = false, rotacaoAtual = 0, ganhou10k = 0;
     let participanteAtual = null;
     let limiteDiario = 4; // Máximo de atividades por dia
-    let atividadesHoje = 0;
 
     const premios = [
       { txt: "500", v: 500, c: "#4fdcff", ch: 90 },
@@ -891,15 +896,30 @@ canvas{border-radius:50%}
           
           // Verifica se precisa resetar as atividades do dia
           if (dados.ultimaParticipacao !== hoje) {
-            atividadesHoje = 0;
-            giros = 0; // Zera os giros no novo dia
+            // Resetar todos os botões
+            resetarBotoes();
+            
+            // Conta quantos giros já fez hoje (giros gastos)
+            const girosHojeHistorico = dados.historico ? dados.historico.filter(h => 
+              h.data && h.data.includes(hoje) && h.tipo === "giro"
+            ) : [];
+            
+            giros = Math.max(0, 0 - girosHojeHistorico.length); // 0 atividades feitas hoje
           } else {
-            // Conta quantas atividades já fez hoje (giros ganhos)
+            // Conta quais atividades já fez hoje
             const hojeStr = new Date().toISOString().split('T')[0];
             const atividadesHojeHistorico = dados.historico ? dados.historico.filter(h => 
               h.data && h.data.includes(hojeStr) && h.tipo === "atividade"
             ) : [];
-            atividadesHoje = atividadesHojeHistorico.length;
+            
+            // Atualiza o estado dos botões baseado no histórico
+            atividadesHojeHistorico.forEach(ativ => {
+              const botaoId = ativ.atividade;
+              if (botaoId === 'whatsapp') btnWhatsApp.classList.add('concluido');
+              if (botaoId === 'instagram') btnInstagram.classList.add('concluido');
+              if (botaoId === 'grupo') btnGrupo.classList.add('concluido');
+              if (botaoId === 'convide') btnConvide.classList.add('concluido');
+            });
             
             // Conta quantos giros já fez hoje (giros gastos)
             const girosHojeHistorico = dados.historico ? dados.historico.filter(h => 
@@ -907,18 +927,21 @@ canvas{border-radius:50%}
             ) : [];
             
             // Giros disponíveis = atividades feitas - giros gastos
-            giros = Math.max(0, atividadesHoje - girosHojeHistorico.length);
+            giros = Math.max(0, atividadesHojeHistorico.length - girosHojeHistorico.length);
           }
           
           // Atualiza a interface
           infoId.textContent = id;
           infoTotalGanho.textContent = (dados.totalGanho || 0).toLocaleString('pt-BR') + ' 🪙';
           infoUltimoLogin.textContent = ultimoLogin;
-          infoAtividadesHoje.textContent = `${atividadesHoje}/${limiteDiario}`;
+          
+          // Conta quantos botões estão concluídos
+          const botoesConcluidos = document.querySelectorAll('.acao button.concluido').length;
+          infoAtividadesHoje.textContent = `${botoesConcluidos}/${limiteDiario}`;
           girosEl.textContent = giros;
           
           // Verifica se completou todas as atividades
-          if (atividadesHoje >= limiteDiario) {
+          if (botoesConcluidos >= limiteDiario) {
             statusAtividade.textContent = 'COMPLETOU HOJE';
             statusAtividade.style.color = '#ff5252';
             limiteAviso.style.display = 'block';
@@ -939,6 +962,17 @@ canvas{border-radius:50%}
       }
     }
 
+    function resetarBotoes() {
+      btnWhatsApp.classList.remove('concluido');
+      btnWhatsApp.textContent = '+1';
+      btnInstagram.classList.remove('concluido');
+      btnInstagram.textContent = '+1';
+      btnGrupo.classList.remove('concluido');
+      btnGrupo.textContent = '+1';
+      btnConvide.classList.remove('concluido');
+      btnConvide.textContent = '+1';
+    }
+
     function desativarAtividades(limite) {
       const botoes = document.querySelectorAll('.acao button');
       botoes.forEach(botao => {
@@ -949,6 +983,10 @@ canvas{border-radius:50%}
       
       if (limite) {
         girarBtn.classList.add('desativado');
+      } else {
+        if (giros > 0) {
+          girarBtn.classList.remove('desativado');
+        }
       }
     }
 
@@ -1009,6 +1047,62 @@ canvas{border-radius:50%}
       }
     }
 
+    async function registrarAtividadeParticipante(id, atividade) {
+      if (!id) return;
+      
+      try {
+        const docRef = db.collection("participantes").doc(id);
+        const doc = await docRef.get();
+        
+        const hoje = new Date().toISOString().split('T')[0];
+        const timestamp = new Date().toISOString();
+        
+        if (doc.exists) {
+          const dadosAtuais = doc.data();
+          
+          // Adiciona ao histórico
+          const novoHistorico = [...(dadosAtuais.historico || [])];
+          novoHistorico.push({
+            data: timestamp,
+            tipo: "atividade",
+            atividade: atividade,
+            valorGanho: 0
+          });
+          
+          await docRef.update({
+            ultimaParticipacao: hoje,
+            historico: novoHistorico
+          });
+          
+          console.log(`✅ Atividade ${atividade} registrada para ${id}`);
+          
+          // Atualiza contador de atividades
+          const botoesConcluidos = document.querySelectorAll('.acao button.concluido').length;
+          infoAtividadesHoje.textContent = `${botoesConcluidos}/${limiteDiario}`;
+          giros = botoesConcluidos;
+          girosEl.textContent = giros;
+          
+          // Verifica se completou todas as atividades
+          if (botoesConcluidos >= limiteDiario) {
+            statusAtividade.textContent = 'COMPLETOU HOJE';
+            statusAtividade.style.color = '#ff5252';
+            limiteAviso.style.display = 'block';
+            desativarAtividades(true);
+          }
+          
+          // Ativa o botão de girar se tiver giros
+          if (giros > 0) {
+            girarBtn.classList.remove('desativado');
+          }
+          
+        } else {
+          console.log("❌ Participante não encontrado");
+        }
+      } catch (error) {
+        console.error("❌ Erro ao registrar atividade:", error);
+      }
+    }
+
     async function registrarGanhoParticipante(id, valorGanho) {
       if (!id) return;
       
@@ -1029,7 +1123,7 @@ canvas{border-radius:50%}
           novoHistorico.push({
             data: timestamp,
             valorGanho: valorGanho,
-            tipo: valorGanho > 0 ? "giro" : "atividade"
+            tipo: "giro"
           });
           
           await docRef.update({
@@ -1039,26 +1133,7 @@ canvas{border-radius:50%}
             historico: novoHistorico
           });
           
-          console.log(`✅ Registro de ${valorGanho > 0 ? 'ganho' : 'atividade'} para ${id}`);
-          
-          if (valorGanho > 0) {
-            // Foi um giro com prêmio
-            // Não precisa atualizar contador de atividades
-          } else {
-            // Foi uma atividade (ganhou +1 giro)
-            atividadesHoje++;
-            infoAtividadesHoje.textContent = `${atividadesHoje}/${limiteDiario}`;
-            giros++;
-            girosEl.textContent = giros;
-          }
-          
-          // Verifica se completou todas as atividades
-          if (atividadesHoje >= limiteDiario) {
-            statusAtividade.textContent = 'COMPLETOU HOJE';
-            statusAtividade.style.color = '#ff5252';
-            limiteAviso.style.display = 'block';
-            desativarAtividades(true);
-          }
+          console.log(`✅ Ganho de ${valorGanho} registrado para ${id}`);
           
         } else {
           console.log("❌ Participante não encontrado");
@@ -1150,65 +1225,55 @@ canvas{border-radius:50%}
       }, 4000);
     };
 
-    // Funções de compartilhamento (agora só permitem até 4 atividades)
-    function concluirEGanharGiro(botao) {
-      if (botao.classList.contains("concluido") || atividadesHoje >= limiteDiario) return false;
-      
-      if (atividadesHoje < limiteDiario) {
-        botao.textContent = "✔";
-        botao.classList.add("concluido");
-        
-        // Registra a atividade no Firebase (valor 0 = atividade, não giro com prêmio)
-        if (participanteAtual) {
-          registrarGanhoParticipante(participanteAtual, 0);
-        }
-        
-        return true;
+    // Funções de compartilhamento (cada uma só pode ser feita 1 vez por dia)
+    function concluirEGanharGiro(botao, nomeAtividade) {
+      if (botao.classList.contains("concluido")) {
+        alert(`⚠️ Você já fez essa atividade hoje!`);
+        return false;
       }
-      return false;
+      
+      const botoesConcluidos = document.querySelectorAll('.acao button.concluido').length;
+      if (botoesConcluidos >= limiteDiario) {
+        alert("⚠️ Você já completou todas as atividades hoje!");
+        return false;
+      }
+      
+      botao.textContent = "✔";
+      botao.classList.add("concluido");
+      
+      // Registra a atividade específica no Firebase
+      if (participanteAtual) {
+        registrarAtividadeParticipante(participanteAtual, nomeAtividade);
+      }
+      
+      return true;
     }
 
     window.ganharGiroWhatsApp = function(botao) {
-      if (!concluirEGanharGiro(botao)) {
-        if (atividadesHoje >= limiteDiario) {
-          alert("⚠️ Você já completou todas as atividades hoje!");
-        }
-        return;
-      }
+      if (!concluirEGanharGiro(botao, 'whatsapp')) return;
+      
       const texto = encodeURIComponent("🚀 Venha ganhar moedas para sua meta na Kako Live! Eu já ganhei 10.000🪙. Gire você também: " + window.location.href);
       window.location.href = `https://api.whatsapp.com/send?text=${texto}`;
     };
 
     window.ganharGiroInstagram = function(botao) {
-      if (!concluirEGanharGiro(botao)) {
-        if (atividadesHoje >= limiteDiario) {
-          alert("⚠️ Você já completou todas as atividades hoje!");
-        }
-        return;
-      }
+      if (!concluirEGanharGiro(botao, 'instagram')) return;
+      
       const texto = encodeURIComponent("🚀 Venha ganhar moedas para sua meta na Kako Live! Eu já ganhei 10.000🪙. Gire você também: " + window.location.href);
       window.location.href = `https://www.instagram.com/`;
       alert("Copie o link e cole nos stories: " + decodeURIComponent(texto));
     };
 
     window.ganharGiroGrupo = function(botao) {
-      if (!concluirEGanharGiro(botao)) {
-        if (atividadesHoje >= limiteDiario) {
-          alert("⚠️ Você já completou todas as atividades hoje!");
-        }
-        return;
-      }
+      if (!concluirEGanharGiro(botao, 'grupo')) return;
+      
       const texto = encodeURIComponent("🚀 Venha ganhar moedas para sua meta na Kako Live! Eu já ganhei 10.000🪙. Gire você também: " + window.location.href);
       window.location.href = `https://api.whatsapp.com/send?text=${texto}`;
     };
 
     window.semGiro = function(b) {
-      if (!concluirEGanharGiro(b)) {
-        if (atividadesHoje >= limiteDiario) {
-          alert("⚠️ Você já completou todas as atividades hoje!");
-        }
-        return;
-      }
+      if (!concluirEGanharGiro(b, 'convide')) return;
+      
       alert("Convite registrado! +1 giro ganho!");
     };
 
