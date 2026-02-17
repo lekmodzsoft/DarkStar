@@ -750,6 +750,37 @@ canvas{border-radius:50%}
         <div class="acao" id="ativConvide">👥 Convide alguém <button onclick="semGiro(this)" id="btnConvide">+1</button></div>
       </div>
     </div>
+
+    <!-- ===== NOVOS MODAIS PARA RETIRADA (adicionados sem alterar nada existente) ===== -->
+    <!-- Modal de Retirada (primeiro diálogo) -->
+    <div class="modal" id="retiradaModal" style="display: none;">
+      <div class="modal-box">
+        <h3>💸 Retirar Coins</h3>
+        <div style="text-align: left; margin: 15px 0;">
+          <p>🪙 Valor total: <strong id="retiradaValorTotal">0</strong> coins</p>
+          <p>🆔 ID: <span id="retiradaId">—</span></p>
+          <p>📆 Data de login: <span id="retiradaDataLogin">—</span></p>
+        </div>
+        <p style="background: #2a2f3f; padding: 8px; border-radius: 8px;">⚠️ Valor mínimo para retirada: <strong>30.000 coins</strong></p>
+        <button id="btnContinuarRetirada" style="margin-top: 10px; background: linear-gradient(135deg,#4fdcff,#007a99);">Continuar</button>
+        <button onclick="fecharModal('retiradaModal')" style="margin-top: 5px; background: #3a4050;">Cancelar</button>
+      </div>
+    </div>
+
+    <!-- Modal do Código de Resgate (segundo diálogo) -->
+    <div class="modal" id="codigoModal" style="display: none;">
+      <div class="modal-box">
+        <h3>🔑 Código de Resgate</h3>
+        <div style="background: #1e2433; padding: 15px; border-radius: 12px; margin: 15px 0; text-align: left;">
+          <p>🆔 ID: <span id="codigoId">—</span></p>
+          <p>🪙 Valor: <span id="codigoValor">0</span> coins</p>
+          <p>🔢 CÓDIGO DE RESGATE:</p>
+          <div style="background: #0b0d13; padding: 10px; border-radius: 8px; font-family: monospace; font-size: 18px; text-align: center; letter-spacing: 2px;" id="codigoGerado">ABC123</div>
+        </div>
+        <button id="btnCopiarCodigo" style="background: linear-gradient(135deg,#4fdcff,#007a99);">📋 Copiar Código</button>
+        <button onclick="fecharModal('codigoModal')" style="margin-top: 5px; background: #3a4050;">Fechar</button>
+      </div>
+    </div>
   </div>
 
   <!-- ===== FIREBASE SDKs ===== -->
@@ -1513,6 +1544,80 @@ canvas{border-radius:50%}
         setTimeout(animateIntro, 160);
       });
     })();
+
+    // ====================================================
+    // 6. NOVA FUNCIONALIDADE DE RETIRADA (adicionada sem modificar nada acima)
+    // ====================================================
+    // Funções para os modais de retirada
+    window.fecharModal = function(id) {
+      document.getElementById(id).style.display = 'none';
+    };
+
+    function abrirRetirada() {
+      if (!participanteAtual) {
+        alert('❌ Você precisa fazer o login primeiro!');
+        return;
+      }
+      // Preencher dados
+      document.getElementById('retiradaValorTotal').textContent = coins.toLocaleString('pt-BR');
+      document.getElementById('retiradaId').textContent = participanteAtual;
+      // Data de login: pegar do elemento infoUltimoLogin ou usar atual
+      let dataLogin = document.getElementById('infoUltimoLogin').textContent;
+      if (dataLogin === '—') {
+        dataLogin = new Date().toLocaleDateString('pt-BR');
+      }
+      document.getElementById('retiradaDataLogin').textContent = dataLogin;
+
+      // Verificar mínimo e ajustar botão
+      const btnContinuar = document.getElementById('btnContinuarRetirada');
+      if (coins < 30000) {
+        btnContinuar.style.opacity = '0.5';
+        btnContinuar.style.pointerEvents = 'none';
+        btnContinuar.textContent = 'Saldo insuficiente';
+      } else {
+        btnContinuar.style.opacity = '1';
+        btnContinuar.style.pointerEvents = 'auto';
+        btnContinuar.textContent = 'Continuar';
+      }
+
+      document.getElementById('retiradaModal').style.display = 'flex';
+    }
+
+    // Evento do botão "Continuar" no primeiro modal
+    document.getElementById('btnContinuarRetirada').addEventListener('click', function() {
+      if (coins < 30000) {
+        alert('Você não tem o valor mínimo de retirada (30.000 coins)');
+        return;
+      }
+      fecharModal('retiradaModal');
+      gerarCodigoResgate();
+      document.getElementById('codigoModal').style.display = 'flex';
+    });
+
+    function gerarCodigoResgate() {
+      // Gerar código aleatório: letras e números, 8 caracteres (prefixo RT + 6 aleatórios)
+      const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+      let codigo = 'RT';
+      for (let i = 0; i < 6; i++) {
+        codigo += chars[Math.floor(Math.random() * chars.length)];
+      }
+      document.getElementById('codigoId').textContent = participanteAtual;
+      document.getElementById('codigoValor').textContent = coins.toLocaleString('pt-BR');
+      document.getElementById('codigoGerado').textContent = codigo;
+    }
+
+    // Copiar código para área de transferência
+    document.getElementById('btnCopiarCodigo').addEventListener('click', function() {
+      const codigo = document.getElementById('codigoGerado').textContent;
+      navigator.clipboard.writeText(codigo).then(() => {
+        alert('✅ Código copiado para a área de transferência!');
+      }).catch(() => {
+        alert('❌ Erro ao copiar. Copie manualmente: ' + codigo);
+      });
+    });
+
+    // Vincular evento ao botão "Retirar" original
+    document.querySelector('.retirar').addEventListener('click', abrirRetirada);
   </script>
 </body>
 </html>
