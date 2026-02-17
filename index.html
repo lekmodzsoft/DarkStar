@@ -767,16 +767,26 @@ canvas{border-radius:50%}
       </div>
     </div>
 
-    <!-- Modal do Código de Resgate (segundo diálogo) -->
+    <!-- Modal do Código de Resgate (segundo diálogo) - MODIFICADO CONFORME SOLICITADO -->
     <div class="modal" id="codigoModal" style="display: none;">
       <div class="modal-box">
         <h3>🔑 Código de Resgate</h3>
+        
+        <!-- AVISO EM VERMELHO CHAMATIVO -->
+        <div style="background: rgba(255, 82, 82, 0.2); border: 2px solid #ff5252; border-radius: 10px; padding: 12px; margin-bottom: 15px; color: #ff5252; font-weight: bold; font-size: 13px;">
+          ⚠️ Para efetuar o resgate com sucesso, envie seu código gerado diretamente no grupo da agência e marque um administrador responsável pela atividade!
+        </div>
+
+        <!-- INFORMAÇÕES DO RESGATE (CADA UMA EM SUA LINHA) -->
         <div style="background: #1e2433; padding: 15px; border-radius: 12px; margin: 15px 0; text-align: left;">
-          <p>🆔 ID: <span id="codigoId">—</span></p>
-          <p>🪙 Valor: <span id="codigoValor">0</span> coins</p>
-          <p>🔢 CÓDIGO DE RESGATE:</p>
+          <p style="margin: 5px 0;">🔢 código pix simulado</p>
+          <p style="margin: 5px 0;">🆔 ID DO USUÁRIO: <span id="codigoId">—</span></p>
+          <p style="margin: 5px 0;">📆 DATA DE RESGATE: <span id="codigoData">—</span></p>
+          <p style="margin: 5px 0;">🪙 VALOR RETIRADO: <span id="codigoValor">0</span> coins</p>
+          <p style="margin: 10px 0 5px 0;"><strong>🔢 CÓDIGO DE RESGATE:</strong></p>
           <div style="background: #0b0d13; padding: 10px; border-radius: 8px; font-family: monospace; font-size: 18px; text-align: center; letter-spacing: 2px;" id="codigoGerado">ABC123</div>
         </div>
+
         <button id="btnCopiarCodigo" style="background: linear-gradient(135deg,#4fdcff,#007a99);">📋 Copiar Código</button>
         <button onclick="fecharModal('codigoModal')" style="margin-top: 5px; background: #3a4050;">Fechar</button>
       </div>
@@ -1606,9 +1616,16 @@ canvas{border-radius:50%}
       for (let i = 0; i < 6; i++) {
         codigo += chars[Math.floor(Math.random() * chars.length)];
       }
+      
+      // Preencher dados do modal de resgate
       document.getElementById('codigoId').textContent = participanteAtual;
       document.getElementById('codigoValor').textContent = coins.toLocaleString('pt-BR');
       document.getElementById('codigoGerado').textContent = codigo;
+      
+      // Inserir data atual formatada
+      const hoje = new Date();
+      const dataFormatada = hoje.toLocaleDateString('pt-BR') + ' ' + hoje.toLocaleTimeString('pt-BR', {hour: '2-digit', minute:'2-digit'});
+      document.getElementById('codigoData').textContent = dataFormatada;
     }
 
     // Copiar código para área de transferência
