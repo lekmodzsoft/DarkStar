@@ -692,7 +692,7 @@ canvas{border-radius:50%}
       <div class="participante-info" id="participanteInfo" style="display: none;">
         <div class="info-header">
           <h3>👤 DADOS DO PARTICIPANTE</h3>
-          <span class="info-badge" id="statusAtividade">ATIVO</span>
+          <span class="info-badge" id="statusAtividade">INATIVO</span>
         </div>
         <div class="info-detalhes">
           <div class="info-linha">
@@ -708,12 +708,12 @@ canvas{border-radius:50%}
             <span class="info-valor" id="infoUltimoLogin">—</span>
           </div>
           <div class="info-linha">
-            <span class="info-label">🎯 Giros Hoje:</span>
-            <span class="info-valor" id="infoGirosHoje">0/4</span>
+            <span class="info-label">🎯 Atividades Hoje:</span>
+            <span class="info-valor" id="infoAtividadesHoje">0/4</span>
           </div>
         </div>
         <div class="limite-atingido" id="limiteAviso" style="display: none;">
-          ⚠️ Limite diário de giros atingido! Volte amanhã.
+          ⚠️ Você já completou todas as atividades hoje! Volte amanhã.
         </div>
       </div>
 
@@ -739,7 +739,7 @@ canvas{border-radius:50%}
           </div>
           <div class="centro desativado" id="girarBtn">GIRAR</div>
         </div>
-        <div class="info">🔄 Giros restantes: <b id="giros">1</b></div>
+        <div class="info">🔄 Giros disponíveis: <b id="giros">0</b></div>
       </div>
 
       <div class="card">
@@ -747,7 +747,7 @@ canvas{border-radius:50%}
         <div class="acao" id="ativWhatsApp">📤 WhatsApp Status <button onclick="ganharGiroWhatsApp(this)">+1</button></div>
         <div class="acao" id="ativInstagram">📸 Instagram Stories <button onclick="ganharGiroInstagram(this)">+1</button></div>
         <div class="acao" id="ativGrupo">💬 Grupo WhatsApp <button onclick="ganharGiroGrupo(this)">+1</button></div>
-        <div class="acao" id="ativConvide">👥 Convide alguém <button onclick="semGiro(this)">Ir</button></div>
+        <div class="acao" id="ativConvide">👥 Convide alguém <button onclick="semGiro(this)">+1</button></div>
       </div>
     </div>
   </div>
@@ -812,7 +812,7 @@ canvas{border-radius:50%}
     verificarStatusRoleta();
 
     // ====================================================
-    // 2. SEU CÓDIGO ORIGINAL (COMPLETO) - NADA MEXIDO
+    // 2. SEU CÓDIGO ORIGINAL (COMPLETO) - COM CORREÇÃO DO LIMITE
     // ====================================================
     const canvas = document.getElementById("roleta");
     const ctx = canvas.getContext("2d");
@@ -829,14 +829,14 @@ canvas{border-radius:50%}
     const infoId = document.getElementById('infoId');
     const infoTotalGanho = document.getElementById('infoTotalGanho');
     const infoUltimoLogin = document.getElementById('infoUltimoLogin');
-    const infoGirosHoje = document.getElementById('infoGirosHoje');
+    const infoAtividadesHoje = document.getElementById('infoAtividadesHoje');
     const statusAtividade = document.getElementById('statusAtividade');
     const limiteAviso = document.getElementById('limiteAviso');
 
-    let coins = 0, giros = 1, girando = false, rotacaoAtual = 0, ganhou10k = 0;
+    let coins = 0, giros = 0, girando = false, rotacaoAtual = 0, ganhou10k = 0;
     let participanteAtual = null;
-    let limiteDiario = 4; // Máximo de giros por dia
-    let girosHoje = 0;
+    let limiteDiario = 4; // Máximo de atividades por dia
+    let atividadesHoje = 0;
 
     const premios = [
       { txt: "500", v: 500, c: "#4fdcff", ch: 90 },
@@ -874,7 +874,7 @@ canvas{border-radius:50%}
     desenhar();
 
     // ====================================================
-    // FUNÇÕES DO PARTICIPANTE
+    // FUNÇÕES DO PARTICIPANTE (CORRIGIDAS)
     // ====================================================
     async function carregarDadosParticipante(id) {
       try {
@@ -889,31 +889,37 @@ canvas{border-radius:50%}
           // Formata a data
           const ultimoLogin = dados.ultimaParticipacao ? new Date(dados.ultimaParticipacao).toLocaleDateString('pt-BR') : '—';
           
-          // Verifica se precisa resetar os giros do dia
+          // Verifica se precisa resetar as atividades do dia
           if (dados.ultimaParticipacao !== hoje) {
-            girosHoje = 0;
-            // Atualiza os giros restantes para o máximo
-            giros = limiteDiario;
+            atividadesHoje = 0;
+            giros = 0; // Zera os giros no novo dia
           } else {
-            // Conta quantos giros já fez hoje
+            // Conta quantas atividades já fez hoje (giros ganhos)
             const hojeStr = new Date().toISOString().split('T')[0];
+            const atividadesHojeHistorico = dados.historico ? dados.historico.filter(h => 
+              h.data && h.data.includes(hojeStr) && h.tipo === "atividade"
+            ) : [];
+            atividadesHoje = atividadesHojeHistorico.length;
+            
+            // Conta quantos giros já fez hoje (giros gastos)
             const girosHojeHistorico = dados.historico ? dados.historico.filter(h => 
               h.data && h.data.includes(hojeStr) && h.tipo === "giro"
             ) : [];
-            girosHoje = girosHojeHistorico.length;
-            giros = Math.max(0, limiteDiario - girosHoje);
+            
+            // Giros disponíveis = atividades feitas - giros gastos
+            giros = Math.max(0, atividadesHoje - girosHojeHistorico.length);
           }
           
           // Atualiza a interface
           infoId.textContent = id;
           infoTotalGanho.textContent = (dados.totalGanho || 0).toLocaleString('pt-BR') + ' 🪙';
           infoUltimoLogin.textContent = ultimoLogin;
-          infoGirosHoje.textContent = `${girosHoje}/${limiteDiario}`;
+          infoAtividadesHoje.textContent = `${atividadesHoje}/${limiteDiario}`;
           girosEl.textContent = giros;
           
-          // Verifica se atingiu o limite
-          if (giros <= 0) {
-            statusAtividade.textContent = 'LIMITE ATINGIDO';
+          // Verifica se completou todas as atividades
+          if (atividadesHoje >= limiteDiario) {
+            statusAtividade.textContent = 'COMPLETOU HOJE';
             statusAtividade.style.color = '#ff5252';
             limiteAviso.style.display = 'block';
             desativarAtividades(true);
@@ -958,7 +964,7 @@ canvas{border-radius:50%}
           // Atualiza participante existente
           const dadosAtuais = doc.data();
           
-          // Verifica se é um novo dia para resetar giros
+          // Verifica se é um novo dia para resetar atividades
           let novoHistorico = [...(dadosAtuais.historico || [])];
           novoHistorico.push({
             data: timestamp,
@@ -976,7 +982,7 @@ canvas{border-radius:50%}
           await carregarDadosParticipante(id);
           
         } else {
-          // Novo participante
+          // Novo participante - começa com 0 atividades e 0 giros
           const novoParticipante = {
             id: id,
             primeiraParticipacao: hoje,
@@ -1023,7 +1029,7 @@ canvas{border-radius:50%}
           novoHistorico.push({
             data: timestamp,
             valorGanho: valorGanho,
-            tipo: "giro"
+            tipo: valorGanho > 0 ? "giro" : "atividade"
           });
           
           await docRef.update({
@@ -1033,15 +1039,22 @@ canvas{border-radius:50%}
             historico: novoHistorico
           });
           
-          console.log(`✅ Ganho de ${valorGanho} registrado para ${id}`);
+          console.log(`✅ Registro de ${valorGanho > 0 ? 'ganho' : 'atividade'} para ${id}`);
           
-          // Atualiza contador de giros hoje
-          girosHoje++;
-          infoGirosHoje.textContent = `${girosHoje}/${limiteDiario}`;
+          if (valorGanho > 0) {
+            // Foi um giro com prêmio
+            // Não precisa atualizar contador de atividades
+          } else {
+            // Foi uma atividade (ganhou +1 giro)
+            atividadesHoje++;
+            infoAtividadesHoje.textContent = `${atividadesHoje}/${limiteDiario}`;
+            giros++;
+            girosEl.textContent = giros;
+          }
           
-          // Verifica se atingiu o limite
-          if (girosHoje >= limiteDiario) {
-            statusAtividade.textContent = 'LIMITE ATINGIDO';
+          // Verifica se completou todas as atividades
+          if (atividadesHoje >= limiteDiario) {
+            statusAtividade.textContent = 'COMPLETOU HOJE';
             statusAtividade.style.color = '#ff5252';
             limiteAviso.style.display = 'block';
             desativarAtividades(true);
@@ -1080,7 +1093,7 @@ canvas{border-radius:50%}
     }
 
     girarBtn.onclick = () => {
-      if (girando || giros <= 0 || girosHoje >= limiteDiario) return;
+      if (girando || giros <= 0) return;
 
       girando = true;
       giros--;
@@ -1116,7 +1129,7 @@ canvas{border-radius:50%}
         // Salva no Firebase (ganhadores para o ticker)
         salvarNoFirebase(msg, premio.v);
         
-        // Registra o ganho do participante
+        // Registra o ganho do participante (com valor > 0 = giro com prêmio)
         registrarGanhoParticipante(uid, premio.v);
         
         // Atualiza ticker local
@@ -1129,7 +1142,7 @@ canvas{border-radius:50%}
         girando = false;
         
         // Verifica se ainda pode girar
-        if (giros > 0 && girosHoje < limiteDiario) {
+        if (giros > 0) {
           girarBtn.classList.remove("desativado");
         } else {
           girarBtn.classList.add("desativado");
@@ -1137,17 +1150,15 @@ canvas{border-radius:50%}
       }, 4000);
     };
 
-    // Funções de compartilhamento
+    // Funções de compartilhamento (agora só permitem até 4 atividades)
     function concluirEGanharGiro(botao) {
-      if (botao.classList.contains("concluido") || girosHoje >= limiteDiario) return false;
+      if (botao.classList.contains("concluido") || atividadesHoje >= limiteDiario) return false;
       
-      if (girosHoje < limiteDiario) {
-        giros++;
-        girosEl.textContent = giros;
+      if (atividadesHoje < limiteDiario) {
         botao.textContent = "✔";
         botao.classList.add("concluido");
         
-        // Registra o giro ganho no Firebase
+        // Registra a atividade no Firebase (valor 0 = atividade, não giro com prêmio)
         if (participanteAtual) {
           registrarGanhoParticipante(participanteAtual, 0);
         }
@@ -1159,8 +1170,8 @@ canvas{border-radius:50%}
 
     window.ganharGiroWhatsApp = function(botao) {
       if (!concluirEGanharGiro(botao)) {
-        if (girosHoje >= limiteDiario) {
-          alert("⚠️ Você já atingiu o limite de giros por hoje!");
+        if (atividadesHoje >= limiteDiario) {
+          alert("⚠️ Você já completou todas as atividades hoje!");
         }
         return;
       }
@@ -1170,8 +1181,8 @@ canvas{border-radius:50%}
 
     window.ganharGiroInstagram = function(botao) {
       if (!concluirEGanharGiro(botao)) {
-        if (girosHoje >= limiteDiario) {
-          alert("⚠️ Você já atingiu o limite de giros por hoje!");
+        if (atividadesHoje >= limiteDiario) {
+          alert("⚠️ Você já completou todas as atividades hoje!");
         }
         return;
       }
@@ -1182,8 +1193,8 @@ canvas{border-radius:50%}
 
     window.ganharGiroGrupo = function(botao) {
       if (!concluirEGanharGiro(botao)) {
-        if (girosHoje >= limiteDiario) {
-          alert("⚠️ Você já atingiu o limite de giros por hoje!");
+        if (atividadesHoje >= limiteDiario) {
+          alert("⚠️ Você já completou todas as atividades hoje!");
         }
         return;
       }
@@ -1192,10 +1203,13 @@ canvas{border-radius:50%}
     };
 
     window.semGiro = function(b) {
-      if (b.classList.contains("concluido")) return;
-      b.textContent = "✔";
-      b.classList.add("concluido");
-      alert("Convite registrado! (simulado)");
+      if (!concluirEGanharGiro(b)) {
+        if (atividadesHoje >= limiteDiario) {
+          alert("⚠️ Você já completou todas as atividades hoje!");
+        }
+        return;
+      }
+      alert("Convite registrado! +1 giro ganho!");
     };
 
     window.compartilharBanner = function() {
