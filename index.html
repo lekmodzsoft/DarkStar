@@ -777,14 +777,12 @@ canvas{border-radius:50%}
           ⚠️ Para efetuar o resgate com sucesso, envie seu código gerado diretamente no grupo da agência e marque um administrador responsável pela atividade!
         </div>
 
-        <!-- INFORMAÇÕES DO RESGATE (CADA UMA EM SUA LINHA) -->
-        <div style="background: #1e2433; padding: 15px; border-radius: 12px; margin: 15px 0; text-align: left;">
-          <p style="margin: 5px 0;">🔢 código pix simulado</p>
+        <!-- INFORMAÇÕES DO RESGATE (FORMATO SOLICITADO) -->
+        <div style="background: #1e2433; padding: 15px; border-radius: 12px; margin: 15px 0; text-align: left;" id="resgateInfo">
+          <p style="margin: 5px 0;">🔢 CÓDIGO DE RESGATE: <strong><span id="codigoGerado">ABC123</span></strong></p>
           <p style="margin: 5px 0;">🆔 ID DO USUÁRIO: <span id="codigoId">—</span></p>
           <p style="margin: 5px 0;">📆 DATA DE RESGATE: <span id="codigoData">—</span></p>
           <p style="margin: 5px 0;">🪙 VALOR RETIRADO: <span id="codigoValor">0</span> coins</p>
-          <p style="margin: 10px 0 5px 0;"><strong>🔢 CÓDIGO DE RESGATE:</strong></p>
-          <div style="background: #0b0d13; padding: 10px; border-radius: 8px; font-family: monospace; font-size: 18px; text-align: center; letter-spacing: 2px;" id="codigoGerado">ABC123</div>
         </div>
 
         <button id="btnCopiarCodigo" style="background: linear-gradient(135deg,#4fdcff,#007a99);">📋 Copiar Código</button>
@@ -1628,13 +1626,23 @@ canvas{border-radius:50%}
       document.getElementById('codigoData').textContent = dataFormatada;
     }
 
-    // Copiar código para área de transferência
+    // Copiar todo o conteúdo formatado para a área de transferência
     document.getElementById('btnCopiarCodigo').addEventListener('click', function() {
       const codigo = document.getElementById('codigoGerado').textContent;
-      navigator.clipboard.writeText(codigo).then(() => {
-        alert('✅ Código copiado para a área de transferência!');
+      const id = document.getElementById('codigoId').textContent;
+      const data = document.getElementById('codigoData').textContent;
+      const valor = document.getElementById('codigoValor').textContent;
+
+      const textoParaCopiar = 
+`🔢 CÓDIGO DE RESGATE: ${codigo}
+🆔 ID DO USUÁRIO: ${id}
+📆 DATA DE RESGATE: ${data}
+🪙 VALOR RETIRADO: ${valor}`;
+
+      navigator.clipboard.writeText(textoParaCopiar).then(() => {
+        alert('✅ Código e informações copiados para a área de transferência!');
       }).catch(() => {
-        alert('❌ Erro ao copiar. Copie manualmente: ' + codigo);
+        alert('❌ Erro ao copiar. Copie manualmente:\n\n' + textoParaCopiar);
       });
     });
 
@@ -1642,4 +1650,4 @@ canvas{border-radius:50%}
     document.querySelector('.retirar').addEventListener('click', abrirRetirada);
   </script>
 </body>
-</html>
+              </html>
