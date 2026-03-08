@@ -619,6 +619,58 @@ canvas{border-radius:50%}
   color: #888;
   font-size: 14px;
 }
+
+/* ===========================
+   NOVO: SELO DE DESATIVADO (CARIMBO) - ADICIONADO
+   =========================== */
+.selo-desativado {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 20;
+  pointer-events: none; /* apenas visual, não atrapalha cliques em outros elementos */
+}
+
+.selo-desativado span {
+  background: rgba(255, 0, 0, 0.85);
+  color: white;
+  font-size: 32px;
+  font-weight: 900;
+  text-transform: uppercase;
+  padding: 10px 30px;
+  border: 4px solid white;
+  border-radius: 20px;
+  transform: rotate(-25deg);
+  box-shadow: 0 0 30px rgba(255, 0, 0, 0.8);
+  font-family: 'Arial Black', sans-serif;
+  letter-spacing: 4px;
+  backdrop-filter: blur(4px);
+  animation: pulseDesativado 1.5s infinite ease-in-out;
+}
+
+@keyframes pulseDesativado {
+  0% { transform: rotate(-25deg) scale(1); opacity: 0.9; }
+  50% { transform: rotate(-25deg) scale(1.1); opacity: 1; box-shadow: 0 0 50px red; }
+  100% { transform: rotate(-25deg) scale(1); opacity: 0.9; }
+}
+
+/* Desabilita permanentemente o botão de girar (sem afetar a classe .desativado original) */
+.roleta-area .centro {
+  pointer-events: none !important;
+  opacity: 0.5 !important;
+  cursor: default !important;
+}
+
+/* Opcional: desabilita também a roleta (impede qualquer interação com o canvas) */
+.roleta-container {
+  pointer-events: none;
+}
+
   </style>
 </head>
 <body>
@@ -748,6 +800,8 @@ canvas{border-radius:50%}
           <div class="roleta-container" id="roletaBox">
             <canvas id="roleta" width="320" height="320"></canvas>
           </div>
+          <!-- SELO DE DESATIVADO (ADICIONADO) -->
+          <div class="selo-desativado"><span>DESATIVADO</span></div>
           <div class="centro desativado" id="girarBtn">GIRAR</div>
         </div>
         <div class="info">🔄 Giros disponíveis: <b id="giros">0</b></div>
